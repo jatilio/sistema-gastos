@@ -1,0 +1,15 @@
+2026-02-11 21:15:06 POST:
+Array
+(
+    [banco] => Citibank
+    [nombre_tarjeta] => Best Buy
+    [tipo] => credito
+    [limite] => 5000
+    [dia_corte] => 2026-02-04
+    [dia_pago] => 2026-03-06
+    [marca] => Visa
+    [ultimos_4] => 78
+    [estado] => activa
+)
+
+

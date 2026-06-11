@@ -1,0 +1,128 @@
+/* ============================================
+   CONTENEDOR PRINCIPAL
+============================================ */
+.tarjeta-gastos-container {
+    max-width: 650px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 30px 35px;
+    border-radius: 14px;
+    border: 1px solid #e2e2e2;
+    box-shadow: 0 6px 22px rgba(0,0,0,0.08);
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Animación suave */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================
+   TÍTULO
+============================================ */
+.titulo-modulo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 25px;
+    letter-spacing: -0.5px;
+}
+
+/* ============================================
+   FORMULARIO
+============================================ */
+.form-tarjeta-gasto {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.form-tarjeta-gasto label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+}
+
+/* Inputs y selects */
+.form-tarjeta-gasto input,
+.form-tarjeta-gasto select {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid #cfcfcf;
+    background: #f9f9f9;
+    font-size: 1rem;
+    transition: all 0.25s ease;
+}
+
+/* Hover */
+.form-tarjeta-gasto input:hover,
+.form-tarjeta-gasto select:hover {
+    background: #ffffff;
+    border-color: #b5b5b5;
+}
+
+/* Focus */
+.form-tarjeta-gasto input:focus,
+.form-tarjeta-gasto select:focus {
+    border-color: #007bff;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.18);
+    outline: none;
+}
+
+/* ============================================
+   SECCIÓN DE CRÉDITO
+============================================ */
+#campos_credito {
+    padding: 18px;
+    background: #f0f6ff;
+    border: 1px solid #cfe0ff;
+    border-radius: 12px;
+    margin-top: 5px;
+    transition: all 0.3s ease;
+}
+
+#campos_credito label {
+    color: #1f4e8c;
+    font-weight: 600;
+}
+
+/* ============================================
+   BOTÓN GUARDAR
+============================================ */
+.btn-guardar {
+    background: linear-gradient(135deg, #007bff, #005fcc);
+    color: #fff;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.15rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 10px;
+    letter-spacing: 0.3px;
+    transition: all 0.25s ease;
+}
+
+.btn-guardar:hover {
+    background: linear-gradient(135deg, #006ae0, #004fb0);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* ============================================
+   RESPONSIVE
+============================================ */
+@media (max-width: 600px) {
+    .tarjeta-gastos-container {
+        padding: 22px;
+    }
+
+    .titulo-modulo {
+        font-size: 1.5rem;
+    }
+}

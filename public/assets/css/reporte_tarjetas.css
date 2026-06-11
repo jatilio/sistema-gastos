@@ -1,0 +1,45 @@
+.reporte-container {
+    max-width: 1100px;
+    margin: 25px auto;
+    padding: 20px;
+    font-family: "Segoe UI", sans-serif;
+}
+
+.titulo-reporte {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.tabla-tarjetas {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.tabla-tarjetas th {
+    background: #f8f9fa;
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid #e3e3e3;
+}
+
+.tabla-tarjetas td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.tabla-tarjetas tr:hover {
+    background: #f5f7ff;
+}
+
+.negativo {
+    color: #d9534f;
+    font-weight: bold;
+}

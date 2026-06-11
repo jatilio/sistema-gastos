@@ -1,0 +1,93 @@
+body {
+    background: yellow !important;
+}
+@page {
+    margin: 45px 35px;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    color: #2b2b2b;
+}
+
+/* ENCABEZADO */
+.header {
+    text-align: center;
+    margin-bottom: 18px;
+}
+
+.title {
+    font-size: 26px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.info {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #444;
+}
+
+/* TABLA ESTILO EXCEL PREMIUM */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+}
+
+th {
+    background: #d7e3f4;
+    border: 1px solid #a8bdd8;
+    padding: 6px 5px;
+    font-size: 11px;
+    font-weight: bold;
+    text-align: left;
+    color: #1a1a1a;
+}
+
+td {
+    border: 1px solid #c3d2e5;
+    padding: 5px 6px;
+    font-size: 10px;
+    color: #333;
+}
+
+/* Filas alternas */
+tr:nth-child(even) td {
+    background: #f5f8fc;
+}
+
+/* Filas NO pagadas */
+.unpaid td {
+    background: #ffe0e0 !important;
+    color: #7a0000;
+    font-weight: bold;
+}
+
+/* Fila total */
+.total-row td {
+    background: #cfe5ff;
+    font-weight: bold;
+    font-size: 11px;
+    border-top: 2px solid #7aa7d9;
+}
+
+/* Pie de página */
+.footer {
+    position: fixed;
+    bottom: -10px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 10px;
+    color: #777;
+}
+
+.no-pagado td {
+    background: #ffe5e5 !important;   /* rojo suave */
+    color: #7a0000;                   /* texto rojo oscuro elegante */
+    font-weight: 600;                 /* un poco más fuerte */
+    border-color: #f3bcbc;            /* bordes suaves */
+}

@@ -1,0 +1,176 @@
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f4f6f9;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+}
+
+h1 {
+    margin-bottom: 15px;
+    font-size: 22px;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.tabla-gastos {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.tabla-gastos thead {
+    background: #2c3e50;
+    color: #fff;
+}
+
+.tabla-gastos th,
+.tabla-gastos td {
+    padding: 8px 10px;
+    text-align: left;
+    font-size: 13px;
+}
+
+.tabla-gastos tbody tr {
+    border-bottom: 1px solid #e5e5e5;
+    transition: background 0.2s ease;
+}
+
+.tabla-gastos tbody tr:hover {
+    background: #eef3f8;
+}
+
+.pagado {
+    background: #27ae60;
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.pendiente {
+    background: #f1c40f;
+    color: #000;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.btn-pagar {
+    background: #3498db;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: 0.2s;
+}
+
+.btn-pagar:hover {
+    background: #2980b9;
+    transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+    .tabla-gastos thead { display: none; }
+
+    .tabla-gastos tr {
+        display: block;
+        margin-bottom: 12px;
+        background: #fff;
+        border-radius: 10px;
+        padding: 8px;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+    }
+
+    .tabla-gastos td {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 8px;
+        font-size: 12px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .tabla-gastos td:last-child { border-bottom: none; }
+
+    .tabla-gastos td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        color: #2c3e50;
+        margin-right: 5px;
+        flex: 1;
+    }
+}
+
+
+/* HEADER */
+.header-gastos {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:10px;
+}
+
+/* BOTÓN VOLVER */
+.btn-volver-menu {
+    display: inline-block;
+    background: #4e79a7;
+    color: white;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+}
+.btn-volver-menu:hover {
+    background: #3b5c87;
+}
+
+/* BOTONES */
+.btn-pagar {
+    background:#3498db;
+    color:white;
+    border:none;
+    padding:4px 8px;
+    border-radius:5px;
+    cursor:pointer;
+    font-size:12px;
+}
+.btn-pagar:hover {
+    background:#2980b9;
+}
+
+/* TABLA */
+.tabla-gastos {
+    width:100%;
+    border-collapse: collapse;
+    margin-top:10px;
+    font-size:14px;
+}
+.tabla-gastos th, .tabla-gastos td {
+    border:1px solid #ddd;
+    padding:6px;
+    text-align:left;
+}
+.tabla-gastos th {
+    background:#2c3e50;
+    color:white;
+}
+
+/* FILAS */
+.no-pagado td {
+    background:#ffe3e3;
+    color:#b30000;
+    font-weight:700;
+}
+.pagado-fila td {
+    background:#d4edda;
+    color:#155724;
+    font-weight:700;
+}

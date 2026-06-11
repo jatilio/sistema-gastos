@@ -1,0 +1,186 @@
+/* ============================
+   CONTENEDOR GENERAL
+============================ */
+.tarjeta-gastos-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* ============================
+   TÍTULOS
+============================ */
+.titulo-modulo {
+    font-size: 22px;
+    font-weight: bold;
+    margin: 25px 0 15px;
+    color: #1a3d7c;
+}
+
+/* ============================
+   ALERTAS
+============================ */
+.alerta-exito {
+    background: #d4f8d4;
+    color: #0a6b0a;
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-weight: bold;
+    border-left: 5px solid #0a6b0a;
+}
+
+/* ============================
+   FORMULARIO
+============================ */
+.form-tarjeta-gasto {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #d8e2ef;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    margin-bottom: 35px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cbd6e2;
+    border-radius: 6px;
+    font-size: 14px;
+    background: #f9fbfd;
+}
+
+.btn-guardar {
+    background: #1a3d7c;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 6px;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: 0.2s;
+}
+
+.btn-guardar:hover {
+    background: #244f9e;
+}
+
+/* ============================
+   TABLA RESPONSIVE
+============================ */
+.tabla-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.tabla-tarjetas {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.tabla-tarjetas th {
+    background: #1a3d7c;
+    color: white;
+    padding: 10px;
+    font-size: 14px;
+    text-align: left;
+}
+
+.tabla-tarjetas td {
+    padding: 10px;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 14px;
+}
+
+.tabla-tarjetas tr:nth-child(even) {
+    background: #f7faff;
+}
+
+/* ============================
+   BOTONES DE ACCIÓN
+============================ */
+.acciones {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-editar,
+.btn-eliminar {
+    padding: 6px 12px;
+    border-radius: 5px;
+    font-size: 13px;
+    text-decoration: none;
+    color: white;
+    display: inline-block;
+}
+
+.btn-editar {
+    background: #0077cc;
+}
+
+.btn-editar:hover {
+    background: #005fa3;
+}
+
+.btn-eliminar {
+    background: #cc0000;
+}
+
+.btn-eliminar:hover {
+    background: #a30000;
+}
+
+/* ============================
+   RESPONSIVE
+============================ */
+
+/* Tablets */
+@media (max-width: 900px) {
+    .form-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Móviles */
+@media (max-width: 600px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .titulo-modulo {
+        font-size: 20px;
+        text-align: center;
+    }
+
+    .btn-guardar {
+        width: 100%;
+    }
+
+    .acciones {
+        flex-direction: column;
+    }
+
+    .btn-editar,
+    .btn-eliminar {
+        width: 100%;
+        text-align: center;
+    }
+}

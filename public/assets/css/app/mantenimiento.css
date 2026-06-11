@@ -1,0 +1,176 @@
+/* Reset y body */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    color: #333;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #667eea;
+}
+
+/* Mensajes */
+.success {
+    background: #d4edda;
+    color: #155724;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+.error {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Scroll horizontal para móviles */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    margin-bottom: 20px;
+}
+
+/* Tabla tipo Excel */
+.tabla-mantenimiento {
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    border-radius: 8px;
+    overflow: hidden;
+    min-width: 800px; /* ancho mínimo para la tabla */
+}
+
+.tabla-mantenimiento th, .tabla-mantenimiento td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.tabla-mantenimiento th {
+    background: #667eea;
+    color: #fff;
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+.tabla-mantenimiento tr:nth-child(even){
+    background: #f9f9f9;
+}
+
+.tabla-mantenimiento tr:hover {
+    background: #e6f0ff;
+}
+
+.tabla-mantenimiento input,
+.tabla-mantenimiento select {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.tabla-mantenimiento input:focus,
+.tabla-mantenimiento select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 5px rgba(102,126,234,0.5);
+}
+
+/* Botones */
+.botones {
+    margin-top: 20px;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.botones button,
+.botones .btn-volver {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.botones button[type="submit"] {
+    background: #28a745;
+    color: #fff;
+}
+.botones button[type="submit"]:hover {
+    background: #218838;
+}
+
+#agregar-fila {
+    background: #007bff;
+    color: #fff;
+}
+#agregar-fila:hover {
+    background: #0069d9;
+}
+
+.btn-volver {
+    background: #6c757d;
+    color: #fff;
+}
+.btn-volver:hover {
+    background: #5a6268;
+}
+
+.btn-eliminar {
+    background: #dc3545;
+    color: #fff;
+    border-radius: 4px;
+    padding: 5px 8px;
+    font-size: 14px;
+    cursor: pointer;
+}
+.btn-eliminar:hover {
+    background: #c82333;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .tabla-mantenimiento {
+        min-width: 700px;
+    }
+}
+
+@media (max-width: 768px) {
+    .tabla-mantenimiento th, .tabla-mantenimiento td {
+        padding: 8px 10px;
+        font-size: 13px;
+    }
+    .botones {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+@media (max-width: 480px) {
+    .tabla-mantenimiento {
+        min-width: 600px;
+    }
+    .tabla-mantenimiento th, .tabla-mantenimiento td {
+        font-size: 12px;
+        padding: 6px 8px;
+    }
+}

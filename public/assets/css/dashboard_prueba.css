@@ -1,0 +1,513 @@
+/* ===============================
+   BASE
+=============================== */
+body {
+    font-family: "Inter", "Segoe UI", sans-serif;
+    background: #f5f7fb;
+    margin: 0;
+    padding: 0;
+    color: #111827;
+}
+
+.dashboard-wrapper {
+    padding: 24px 32px;
+}
+
+/* ===============================
+   FILTROS
+=============================== */
+.filtros-wrapper {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    background: #ffffff;
+    padding: 16px 20px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.filtro-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.filtro-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #4b5563;
+}
+
+.filtro-select {
+    min-width: 140px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    font-size: 13px;
+    color: #111827;
+    outline: none;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.filtro-select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.25);
+}
+
+.btn-filtrar {
+    padding: 9px 18px;
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    margin-left: auto;
+    transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.1s ease;
+}
+
+.btn-filtrar:hover {
+    background: #1d4ed8;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+    transform: translateY(-1px);
+}
+
+/* ===============================
+   TARJETAS PRINCIPALES
+=============================== */
+.main-cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 26px;
+}
+
+.big-card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 18px 20px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
+    transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.big-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+.big-card h3 {
+    margin: 0 0 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #4b5563;
+}
+
+.big-value {
+    font-size: 30px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.positivo { color: #16a34a; }
+.negativo { color: #dc2626; }
+
+/* ===============================
+   LAYOUT INFERIOR
+=============================== */
+.bottom-flex {
+    display: grid;
+    grid-template-columns: minmax(0, 2.1fr) minmax(0, 1.1fr);
+    gap: 22px;
+}
+
+.left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+/* ===============================
+   GRÁFICO (VERSIÓN FINAL)
+=============================== */
+.chart-box {
+    background: #ffffff;
+    padding: 18px 20px;
+    border-radius: 14px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
+    flex-shrink: 0;
+}
+
+.chart-box.big-chart {
+    height: 260px; /* AJUSTA AQUÍ: 240 / 250 / 260 */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.chart-box.big-chart canvas {
+    height: 100% !important;
+    width: 100% !important;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.section-header h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #111827;
+}
+
+/* ===============================
+   PANEL DERECHO
+=============================== */
+.right-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.panel-section {
+    background: #ffffff;
+    padding: 18px 20px;
+    border-radius: 14px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
+}
+
+/* ===============================
+   LISTAS
+=============================== */
+.list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.list-item:last-child { border-bottom: none; }
+
+.left-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.left-info .t-desc {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0;
+    color: #111827;
+}
+
+.left-info .t-meta {
+    font-size: 11px;
+    color: #6b7280;
+    margin: 0;
+}
+
+.t-monto {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* ===============================
+   RESPONSIVE
+=============================== */
+
+/* Tablets */
+@media (max-width: 1024px) {
+    .main-cards { grid-template-columns: 1fr; }
+    .bottom-flex { grid-template-columns: 1fr; }
+    .btn-filtrar { margin-left: 0; }
+}
+
+/* Celulares grandes */
+@media (max-width: 768px) {
+    .dashboard-wrapper { padding: 16px; }
+    .chart-box.big-chart { height: 220px; }
+}
+
+/* Celulares pequeños */
+@media (max-width: 640px) {
+    .filtros-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn-filtrar { width: 100%; }
+
+    /* OCULTAR GRÁFICO EN CELULAR */
+    .chart-box.big-chart {
+        display: none !important;
+    }
+}
+
+/* ===============================
+   GRÁFICO — ALTURA CORRECTA POR DISPOSITIVO
+=============================== */
+
+/* PC / Escritorio */
+.chart-box.big-chart {
+    height: 360px; /* altura ideal para PC */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.chart-box.big-chart canvas {
+    height: 100% !important;
+    width: 100% !important;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+    .chart-box.big-chart {
+        height: 300px;
+    }
+}
+
+/* Celulares grandes */
+@media (max-width: 768px) {
+    .chart-box.big-chart {
+        height: 240px;
+    }
+}
+
+/* Celulares pequeños — OCULTAR */
+@media (max-width: 640px) {
+    .chart-box.big-chart {
+        display: none !important;
+    }
+}
+
+/* PC / Escritorio */
+.chart-box.big-chart {
+    height: 360px; /* altura ideal para PC */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.chart-box.big-chart canvas {
+    height: 100% !important;
+    width: 100% !important;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+    .chart-box.big-chart {
+        height: 300px;
+    }
+}
+
+/* Celulares grandes */
+@media (max-width: 768px) {
+    .chart-box.big-chart {
+        height: 240px;
+    }
+}
+
+/* Celulares pequeños — OCULTAR */
+@media (max-width: 640px) {
+    .chart-box.big-chart {
+        display: none !important;
+    }
+}
+
+/* ===============================
+   GRÁFICO — ALTURA CORRECTA POR DISPOSITIVO
+=============================== */
+
+/* PC / Escritorio */
+.chart-box.big-chart {
+    height: 360px; /* altura ideal para PC */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.chart-box.big-chart canvas {
+    height: 100% !important;
+    width: 100% !important;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+    .chart-box.big-chart {
+        height: 300px;
+    }
+}
+
+/* Celulares grandes */
+@media (max-width: 768px) {
+    .chart-box.big-chart {
+        height: 240px;
+    }
+}
+
+/* Celulares pequeños — OCULTAR */
+@media (max-width: 640px) {
+    .chart-box.big-chart {
+        display: none !important;
+    }
+}
+
+/* ===============================
+   GRÁFICO — ALTURA EXACTA COMO LA IMAGEN
+=============================== */
+
+.chart-box.big-chart {
+    height: 360px; /* altura perfecta como tu imagen */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.chart-box.big-chart canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+    .chart-box.big-chart {
+        height: 300px;
+    }
+}
+
+/* Celulares grandes */
+@media (max-width: 768px) {
+    .chart-box.big-chart {
+        height: 240px;
+    }
+}
+
+/* Celulares pequeños — OCULTAR */
+@media (max-width: 640px) {
+    .chart-box.big-chart {
+        display: none !important;
+    }
+}
+
+/* TRANSACCIONES RECIENTES MÁS GRANDES */
+.right-panel .panel-section:last-child {
+    min-height: 360px;   /* Ajusta según tu gusto */
+    display: flex;
+    flex-direction: column;
+}
+
+.list-item {
+    padding: 10px 0;
+}
+
+/* PANEL DE TRANSACCIONES MÁS ALTO */
+.right-panel .panel-section:last-child {
+    min-height: 380px;   /* Ajusta según tu gusto */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Más espacio entre transacciones */
+.right-panel .list-item {
+    padding: 12px 0;
+}
+
+/* Alinear altura entre Próximos Pagos y Transacciones */
+.left-column .panel-section,
+.right-panel .panel-section:last-child {
+    min-height: 330px;      /* Ajusta según tu diseño */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Espaciado uniforme entre items */
+.panel-section .list-item {
+    padding: 10px 0;
+}
+
+/* Transacciones Recientes un poco más largo */
+.right-panel .panel-section:last-child {
+    min-height: 390px;   /* antes 360px */
+}
+
+/* Solo Transacciones Recientes un poco más largo */
+.right-panel .panel-section:last-child {
+    min-height: 435px;   /* antes 360–380 */
+}
+
+/* PC y Tablet: acercar el botón Filtrar al select Banco */
+@media (min-width: 768px) {
+    .filtros-wrapper {
+        gap: 10px; /* antes seguro tienes 20px o más */
+    }
+
+    .btn-filtrar {
+        margin-top: 22px; /* alinea verticalmente con los selects */
+    }
+}
+
+/* PC y tablet: botón más cerca del select Banco */
+@media (min-width: 768px) {
+    .filtros-wrapper {
+        display: grid;
+        grid-template-columns: repeat(4, auto);
+        align-items: end;
+        column-gap: 12px;
+    }
+
+    .btn-filtrar {
+        margin: 0;
+        height: 42px;
+    }
+}
+
+/* PC y tablet: botón más cerca del select Banco */
+@media (min-width: 768px) {
+    .filtros-wrapper {
+        display: grid;
+        grid-template-columns: repeat(4, auto);
+        align-items: end;
+        column-gap: 12px;
+    }
+
+    .btn-filtrar {
+        margin: 0;
+        height: 42px;
+    }
+}
+
+@media (min-width: 768px) {
+    .filtros-wrapper {
+        display: grid;
+        grid-template-columns: repeat(4, auto);
+        column-gap: 12px;
+        align-items: end;
+    }
+
+    .btn-filtrar {
+        justify-self: center;   /* CENTRA SOLO EL BOTÓN */
+        height: 42px;
+        margin: 0;
+    }
+}
+
+

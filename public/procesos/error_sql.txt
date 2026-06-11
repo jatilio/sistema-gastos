@@ -1,0 +1,3 @@
+2026-02-11 21:16:29 ERROR SQL:
+SQLSTATE[01000]: Warning: 1265 Data truncated for column 'dia_corte' at row 1
+
