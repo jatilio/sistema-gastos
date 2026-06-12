@@ -124,7 +124,8 @@ const categoriasAuto = {
     "Ikea": "Supermercado",
     "Splitswille": "Restaurantes",
     "Mobile pet wash": "Cuidado personal",
-    "chipotle": "Restaurantes"
+    "chipotle": "Restaurantes",
+    "Progressive Insurance - JE": "Seguros"
 
     
 };

@@ -50,7 +50,7 @@ require_once '../../config/db.php';
                             "Home Depot","Groupon","Sophie’s Cafe","license plate","Whispering","Back of House","Theater",
                             "Dairy Queen Grill","Apple Books","Expedia","Wdw Popcorn","Overtheborder","OverDraft Item Fee",
                             "Via Napolli lake","Katsura Grill","Boulangerie","Somerfest","Floridays Resort Orlando",
-                            "The Cheesecake Factory","Ikea","Splitswille","Mobile pet wash", "chipotle"
+                            "The Cheesecake Factory","Ikea","Splitswille","Mobile pet wash", "chipotle", "Progressive Insurance - JE"
                         ];
 
                         foreach ($descripciones as $d) {
@@ -81,6 +81,7 @@ require_once '../../config/db.php';
                         <option value="Membresías">Membresías</option>
                         <option value="Efectivo">Efectivo</option>
                         <option value="Transferencia">Transferencia</option>
+                        <option value="Seguros">Seguros</option>
                         <option value="Otros">Otros</option>
                     </select>
                 </div>

@@ -169,8 +169,9 @@ elseif($menu==='ingresos_salario'){
 
 // ================= INGRESAR GASTO =================
 elseif($menu==='gastos_ingresar'){
-    require_once __DIR__ . "/gastos/ingresar.php";
+    require_once __DIR__ . '/gastos/ingresar.php';
 }
+
 
 // ================= GASTOS DEL MES =================
 elseif($menu==='gastos_cobrados'){

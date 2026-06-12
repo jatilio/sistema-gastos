@@ -1,0 +1,308 @@
+/* ============================
+   ESTILO GENERAL
+============================ */
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f3f6fb;
+    padding: 25px;
+    color: #333;
+}
+
+/* ============================
+   TABLA ESTILO EXCEL
+============================ */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border: 1px solid #d0d7e5;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+/* Encabezado estilo Excel */
+th {
+    background: #e7eef8;
+    color: #1a1a1a;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #c5ccdb;
+    text-align: left;
+    font-weight: 600;
+}
+
+/* Celdas estilo Excel */
+td {
+    padding: 8px 10px;
+    border: 1px solid #d0d7e5;
+    font-size: 14px;
+    background: #ffffff;
+}
+
+/* Hover tipo Excel */
+tr:hover td {
+    background: #f2f6fc;
+}
+
+/* ============================
+   ESTADOS (PAGADO / NO PAGADO)
+============================ */
+.pagado td {
+    background: #d9f2e3 !important;
+    color: #0f5132;
+}
+
+.nopagado td {
+    background: #fde2e2 !important;
+    color: #842029;
+}
+
+/* ============================
+   BOTÓN PAGAR ESTILO EXCEL
+============================ */
+.btn-pagar {
+    background: #2d6cdf;
+    color: white;
+    padding: 6px 14px;
+    border: 1px solid #1e56c5;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: 0.15s ease-in-out;
+}
+
+.btn-pagar:hover {
+    background: #1e56c5;
+}
+
+/* ============================
+   TÍTULO
+============================ */
+h2 {
+    font-size: 22px;
+    margin-bottom: 15px;
+    color: #1a1a1a;
+    font-weight: 600;
+}
+/* ============================
+   ESTILO GENERAL
+============================ */
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f3f6fb;
+    padding: 25px;
+    color: #333;
+}
+
+/* ============================
+   TABLA ESTILO EXCEL PREMIUM
+============================ */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border: 1px solid #d0d7e5;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+/* Encabezado estilo Excel */
+th {
+    background: #e7eef8;
+    color: #1a1a1a;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #c5ccdb;
+    text-align: left;
+    font-weight: 600;
+}
+
+/* Celdas estilo Excel */
+td {
+    padding: 8px 10px;
+    border: 1px solid #d0d7e5;
+    font-size: 14px;
+    background: #ffffff;
+}
+
+/* Hover tipo Excel */
+tr:hover td {
+    background: #f2f6fc;
+}
+
+/* ============================
+   ESTADO PAGADO (VERDE PREMIUM)
+============================ */
+.pagado td {
+    background: #d9f2e3 !important;
+    color: #0f5132;
+    font-weight: 600;
+}
+
+/* ============================
+   ESTADO NO PAGADO (BLANCO)
+============================ */
+.nopagado td {
+    background: #ffffff !important;
+    color: #333;
+}
+
+/* ============================
+   BOTÓN PAGAR ESTILO OFFICE
+============================ */
+.btn-pagar {
+    background: #2d6cdf;
+    color: white;
+    padding: 6px 14px;
+    border: 1px solid #1e56c5;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: 0.15s ease-in-out;
+}
+
+.btn-pagar:hover {
+    background: #1e56c5;
+}
+
+/* ============================
+   TÍTULO
+============================ */
+h2 {
+    font-size: 22px;
+    margin-bottom: 15px;
+    color: #1a1a1a;
+    font-weight: 600;
+}
+/* ============================
+   ESTILO GENERAL
+============================ */
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f3f6fb;
+    padding: 20px;
+    color: #333;
+    font-size: 13px; /* LETRA MÁS PEQUEÑA */
+}
+
+/* ============================
+   CONTENEDOR RESPONSIVE
+============================ */
+.table-container {
+    width: 100%;
+    overflow-x: auto; /* Scroll horizontal en pantallas pequeñas */
+    -webkit-overflow-scrolling: touch;
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    padding: 0;
+}
+
+/* ============================
+   TABLA ESTILO EXCEL PREMIUM
+============================ */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px; /* Para que no se rompa en móviles */
+    background: white;
+    border: 1px solid #d0d7e5;
+}
+
+/* Encabezado estilo Excel */
+th {
+    background: #e7eef8;
+    color: #1a1a1a;
+    padding: 8px;
+    font-size: 12px;
+    border: 1px solid #c5ccdb;
+    text-align: left;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Celdas estilo Excel */
+td {
+    padding: 6px 8px;
+    border: 1px solid #d0d7e5;
+    font-size: 12px;
+    background: #ffffff;
+    white-space: nowrap;
+}
+
+/* Hover tipo Excel */
+tr:hover td {
+    background: #f2f6fc;
+}
+
+/* ============================
+   ESTADO PAGADO (VERDE PREMIUM)
+============================ */
+.pagado td {
+    background: #d9f2e3 !important;
+    color: #0f5132;
+    font-weight: 600;
+}
+
+/* ============================
+   ESTADO NO PAGADO (BLANCO)
+============================ */
+.nopagado td {
+    background: #ffffff !important;
+    color: #333;
+}
+
+/* ============================
+   BOTÓN PAGAR ESTILO OFFICE
+============================ */
+.btn-pagar {
+    background: #2d6cdf;
+    color: white;
+    padding: 5px 12px;
+    border: 1px solid #1e56c5;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: 0.15s ease-in-out;
+}
+
+.btn-pagar:hover {
+    background: #1e56c5;
+}
+
+/* ============================
+   TÍTULO
+============================ */
+h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: #1a1a1a;
+    font-weight: 600;
+}
+
+/* ============================
+   RESPONSIVE EXTRA
+============================ */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+        font-size: 12px;
+    }
+
+    th, td {
+        padding: 5px;
+        font-size: 11px;
+    }
+
+    h2 {
+        font-size: 18px;
+    }
+
+    .btn-pagar {
+        padding: 4px 10px;
+        font-size: 11px;
+    }
+}
