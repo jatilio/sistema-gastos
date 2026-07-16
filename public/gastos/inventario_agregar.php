@@ -36,43 +36,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Agregar Producto</title>
+
+    <!-- CSS general -->
     <link rel="stylesheet" href="../assets/css/estilos.css">
+
+    <!-- CSS exclusivo del formulario -->
+    <link rel="stylesheet" href="../assets/css/inventario_agregar.css">
 </head>
 
 <body>
+    
 
 <h2>Agregar Producto al Inventario</h2>
 
-<form method="POST">
+<div class="form-card">
 
-    <label>Nombre:</label>
-    <input type="text" name="nombre" required>
+    <form method="POST">
 
-    <label>Categoría:</label>
-    <input type="text" name="categoria" required>
+        <div class="form-grid">
 
-    <label>Cantidad actual:</label>
-    <input type="number" step="0.01" name="cantidad_actual" required>
+            <div class="form-group">
+                <label>Nombre:</label>
+                <input type="text" name="nombre" required>
+            </div>
 
-    <label>Unidad:</label>
-    <input type="text" name="unidad" required>
+            <div class="form-group">
+                <label>Categoría:</label>
+                <input type="text" name="categoria" required>
+            </div>
 
-    <label>Cantidad mínima:</label>
-    <input type="number" step="0.01" name="cantidad_minima" required>
+            <div class="form-group">
+                <label>Cantidad actual:</label>
+                <input type="number" step="0.01" name="cantidad_actual" required>
+            </div>
 
-    <label>Ubicación:</label>
-    <input type="text" name="ubicacion">
+            <div class="form-group">
+                <label>Unidad:</label>
+                <input type="text" name="unidad" required>
+            </div>
 
-    <label>Fecha de compra:</label>
-    <input type="date" name="fecha_compra">
+            <div class="form-group">
+                <label>Cantidad mínima:</label>
+                <input type="number" step="0.01" name="cantidad_minima" required>
+            </div>
 
-    <label>Fecha de vencimiento:</label>
-    <input type="date" name="fecha_vencimiento">
+            <div class="form-group">
+                <label>Ubicación:</label>
+                <input type="text" name="ubicacion">
+            </div>
 
-    <button class="btn" type="submit">Guardar</button>
-</form>
+            <div class="form-group">
+                <label>Fecha de compra:</label>
+                <input type="date" name="fecha_compra">
+            </div>
 
-<a class="btn" href="inventario.php">Volver</a>
+            <div class="form-group">
+                <label>Fecha de vencimiento:</label>
+                <input type="date" name="fecha_vencimiento">
+            </div>
+
+        </div>
+
+        <button class="btn-guardar" type="submit">Guardar</button>
+        <a class="btn-volver" href="inventario.php">Volver</a>
+
+    </form>
+
+</div>
 
 </body>
+
+
+
+
+
+
 </html>

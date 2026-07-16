@@ -125,9 +125,26 @@ const categoriasAuto = {
     "Splitswille": "Restaurantes",
     "Mobile pet wash": "Cuidado personal",
     "chipotle": "Restaurantes",
-    "Progressive Insurance - JE": "Seguros"
-
-    
+    "Progressive Insurance - JE": "Seguros",
+    "Bar Helios": "Restaurantes",
+    "Helios Hotel": "Entretenimiento",
+    "Artistic Body Work": "Otros",
+    "Vietaly Auto Spa": "Restaurantes",
+    "Sunoco": "Restaurantes",
+    "Humane Society": "Otros",
+    "Insufficient funds nsf fee": "Efectivo",
+    "Universal Studios Store": "Entretenimiento",
+    "Amc food court": "Entretenimiento",
+    "Tamales": "Restaurantes",
+    "Parking lot": "Otros",
+    "Apple - Card": "Membresías",
+    "Midflorida": "Transferencia",
+    "Five Below": "Supermercado",
+    "Nursing license": "Membresías",
+    "AMC Misc": "Entretenimiento",
+    "Family decisions": "Otros",
+    "The Donut Man": "Restaurantes",
+    "FLORIDADOH-MQA": "Membresías"
 };
 
 function asignarCategoria(selectDescripcion) {

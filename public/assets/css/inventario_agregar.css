@@ -1,0 +1,135 @@
+/* ============================
+   RESET SEGURO SOLO PARA ESTE FORMULARIO
+============================ */
+.form-card * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* ============================
+   CONTENEDOR GENERAL
+============================ */
+body {
+    background: #eef1f5;
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* ============================
+   TARJETA DEL FORMULARIO
+============================ */
+.form-card {
+    background: #ffffff;
+    padding: 35px;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 650px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.10);
+    border: 1px solid #e6e6e6;
+}
+
+/* ============================
+   TÍTULO
+============================ */
+h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+/* ============================
+   GRID RESPONSIVE
+============================ */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 600px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================
+   GRUPOS DE FORMULARIO
+============================ */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #555;
+}
+
+/* ============================
+   INPUTS
+============================ */
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 14px 12px;
+    border: 1px solid #d0d0d0;
+    border-radius: 10px;
+    font-size: 15px;
+    background: #fafafa;
+    transition: 0.25s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #4a90e2;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(74,144,226,0.25);
+    outline: none;
+}
+
+/* ============================
+   BOTÓN GUARDAR
+============================ */
+.btn-guardar {
+    background: #4a90e2;
+    color: white;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 20px;
+    transition: 0.25s;
+}
+
+.btn-guardar:hover {
+    background: #357ABD;
+}
+
+/* ============================
+   BOTÓN VOLVER
+============================ */
+.btn-volver {
+    display: block;
+    margin-top: 18px;
+    text-align: center;
+    text-decoration: none;
+    color: #4a90e2;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.btn-volver:hover {
+    color: #1f5fa8;
+}

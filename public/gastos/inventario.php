@@ -25,9 +25,18 @@ $stmt = $pdo->prepare("
 $stmt->execute([$usuario_id]);
 $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Grafico de barras por Stock (10 productos con menor cantidad)
+// Contadores para tarjetas
+$total_bajo_stock = 0;
+$total_por_vencer = 0;
+
+foreach ($items as $i) {
+    if ($i['estado'] === 'bajo_stock') $total_bajo_stock++;
+    if ($i['estado'] === 'por_vencer') $total_por_vencer++;
+}
+
+// Datos para gráficos
 $stock = $pdo->prepare("
-    SELECT nombre, cantidad_actual 
+    SELECT categoria, nombre, cantidad_actual 
     FROM inventario 
     WHERE usuario_id = ?
     ORDER BY cantidad_actual ASC 
@@ -36,7 +45,6 @@ $stock = $pdo->prepare("
 $stock->execute([$usuario_id]);
 $stock_data = $stock->fetchAll(PDO::FETCH_ASSOC);
 
-// Grafico de productos por vencer por mes
 $vencer_mes = $pdo->prepare("
     SELECT DATE_FORMAT(fecha_vencimiento, '%Y-%m') AS mes, COUNT(*) AS total
     FROM inventario
@@ -52,41 +60,57 @@ $vencer_data = $vencer_mes->fetchAll(PDO::FETCH_ASSOC);
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Inventario</title>
+    <title>Inventario del Hogar</title>
 
-    <!-- RUTA CORRECTA DESDE /public/gastos/ -->
     <link rel="stylesheet" href="../assets/css/estilos.css">
     <link rel="stylesheet" href="../assets/css/inventario.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
 
+<a href="inventario_bajo_stock_pdf.php" class="btn-guardar">
+    📄 Descargar Bajo Stock
+</a>
+
+
 <h2>Inventario del Hogar</h2>
-<a href="/index.php" 
-   style="display:inline-block; padding:10px 15px; background:#0078ff; 
-          color:white; text-decoration:none; border-radius:5px; 
-          margin-bottom:20px; font-weight:bold;">
-    ⬅ Volver al menú principal
-</a>
+<a class="btn" href="/index.php">⬅ Volver al menú principal</a>
 
-<h2>Inventario de Productos</h2>
+<!-- TARJETAS SUPERIORES -->
+<div class="cards">
+    <div class="card red">
+        <h4>Productos con Bajo Stock</h4>
+        <p><?= $total_bajo_stock ?> Productos</p>
+    </div>
 
-<a href="/gastos/reporte_bajo_stock.php" 
-   style="display:inline-block; padding:10px 15px; background:#ff4d4d; 
-          color:white; text-decoration:none; border-radius:5px; 
-          margin-bottom:20px; font-weight:bold;">
-    📉 Reporte de Productos con Bajo Stock
-</a>
+    <div class="card green">
+        <h4>Próximos a Vencer</h4>
+        <p><?= $total_por_vencer ?> Productos</p>
+    </div>
 
+    <div class="card blue">
+        <h4>+ Agregar Producto</h4>
+        <p><a href="inventario_agregar.php" style="color:white;">Agregar</a></p>
+    </div>
+</div>
 
+<!-- GRÁFICOS -->
+<div class="chart-container">
+    <div class="chart">
+        <h3>Menor Stock</h3>
+        <canvas id="stockChart" height="120"></canvas>
+    </div>
 
-<a class="btn" href="inventario_agregar.php">+ Agregar Producto</a>
+    <div class="chart">
+        <h3>Por Vencer por Mes</h3>
+        <canvas id="vencerMesChart" height="120"></canvas>
+    </div>
+</div>
 
-<h3>Productos con Menor Stock</h3>
-<canvas id="stockChart" height="120"></canvas>
-
-<h3>Productos por Vencer por Mes</h3>
-<canvas id="vencerMesChart" height="120"></canvas>
+<!-- TABLA PRINCIPAL -->
+<h3>Inventario de Productos</h3>
 
 <table>
     <thead>
@@ -96,6 +120,7 @@ $vencer_data = $vencer_mes->fetchAll(PDO::FETCH_ASSOC);
             <th>Cantidad actual</th>
             <th>Unidad</th>
             <th>Cantidad mínima</th>
+            <th>Ubicación</th>
             <th>Vencimiento</th>
             <th>Estado</th>
             <th>Acciones</th>
@@ -104,31 +129,74 @@ $vencer_data = $vencer_mes->fetchAll(PDO::FETCH_ASSOC);
 
     <tbody>
         <?php foreach ($items as $item): ?>
-            <tr class="<?= $item['estado'] ?>">
+            <tr>
                 <td><?= htmlspecialchars($item['categoria']) ?></td>
                 <td><?= htmlspecialchars($item['nombre']) ?></td>
                 <td><?= $item['cantidad_actual'] ?></td>
                 <td><?= htmlspecialchars($item['unidad']) ?></td>
                 <td><?= $item['cantidad_minima'] ?></td>
+                <td><?= htmlspecialchars($item['ubicacion']) ?></td>
                 <td><?= $item['fecha_vencimiento'] ?></td>
 
                 <td>
-                    <?php
-                        if ($item['estado'] == 'bajo_stock') echo 'Bajo stock';
-                        elseif ($item['estado'] == 'vencido') echo 'Vencido';
-                        elseif ($item['estado'] == 'por_vencer') echo 'Por vencer';
-                        else echo 'OK';
-                    ?>
+                    <span class="estado <?= $item['estado'] ?>">
+                        <?php
+                            if ($item['estado'] == 'bajo_stock') echo 'Bajo stock';
+                            elseif ($item['estado'] == 'vencido') echo 'Vencido';
+                            elseif ($item['estado'] == 'por_vencer') echo 'Por vencer';
+                            else echo 'OK';
+                        ?>
+                    </span>
                 </td>
 
                 <td>
-                    <a class="action" href="inventario_editar.php?id=<?= $item['id'] ?>">Editar</a>
-                    <a class="action" href="inventario_consumo.php?id=<?= $item['id'] ?>">Consumo</a>
+                    <a class="action editar" href="inventario_editar.php?id=<?= $item['id'] ?>">Editar</a>
+                    <a class="action consumo" href="inventario_consumo.php?id=<?= $item['id'] ?>">Consumo</a>
+                    <a class="action movimientos" href="inventario_movimientos.php?id=<?= $item['id'] ?>">Movimientos</a>
+
                 </td>
             </tr>
         <?php endforeach; ?>
     </tbody>
 </table>
+
+<!-- SCRIPTS PARA GRÁFICOS -->
+<script>
+/* === FIX PARA EVITAR DUPLICADOS === */
+const stockLabels = <?= json_encode(array_map(
+    fn($i) => $i['categoria'] . ' - ' . $i['nombre'],
+    $stock_data
+)) ?>;
+
+const stockValues = <?= json_encode(array_column($stock_data, 'cantidad_actual')) ?>;
+
+new Chart(document.getElementById('stockChart'), {
+    type: 'bar',
+    data: {
+        labels: stockLabels,
+        datasets: [{
+            label: 'Cantidad',
+            data: stockValues,
+            backgroundColor: '#28a745'
+        }]
+    }
+});
+
+const vencerLabels = <?= json_encode(array_column($vencer_data, 'mes')) ?>;
+const vencerValues = <?= json_encode(array_column($vencer_data, 'total')) ?>;
+
+new Chart(document.getElementById('vencerMesChart'), {
+    type: 'bar',
+    data: {
+        labels: vencerLabels,
+        datasets: [{
+            label: 'Productos',
+            data: vencerValues,
+            backgroundColor: '#ff9800'
+        }]
+    }
+});
+</script>
 
 </body>
 </html>

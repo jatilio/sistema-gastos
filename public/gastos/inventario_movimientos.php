@@ -1,61 +1,125 @@
 <?php
-require '../config.php';
-require '../auth.php';
+session_start();
+require_once dirname(__DIR__, 2) . '/config/db.php';
+
+// Validar sesión
+if (!isset($_SESSION['usuario_id'])) {
+    die("Error: No hay sesión iniciada.");
+}
 
 $usuario_id = $_SESSION['usuario_id'];
 
-// Obtener movimientos del usuario
+if (!isset($_GET['id'])) {
+    die("Error: Falta ID.");
+}
+
+$id = intval($_GET['id']);
+
+// Obtener datos del producto
 $stmt = $pdo->prepare("
-    SELECT m.*, i.nombre AS producto, i.unidad
-    FROM inventario_movimientos m
-    INNER JOIN inventario i ON m.inventario_id = i.id
-    WHERE i.usuario_id = ?
-    ORDER BY m.fecha DESC
+    SELECT nombre, categoria
+    FROM inventario
+    WHERE id = ? AND usuario_id = ?
 ");
-$stmt->execute([$usuario_id]);
-$movimientos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmt->execute([$id, $usuario_id]);
+$producto = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$producto) {
+    die("Producto no encontrado.");
+}
+
+// Obtener movimientos
+$mov = $pdo->prepare("
+    SELECT tipo, cantidad, notas, fecha
+    FROM inventario_movimientos
+    WHERE inventario_id = ? AND usuario_id = ?
+    ORDER BY fecha DESC
+");
+$mov->execute([$id, $usuario_id]);
+$movimientos = $mov->fetchAll(PDO::FETCH_ASSOC);
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Movimientos del Inventario</title>
+    <title>Movimientos del Producto</title>
+
+    <link rel="stylesheet" href="../assets/css/estilos.css">
     <link rel="stylesheet" href="../assets/css/inventario.css">
+
+    <style>
+        .header-info {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        table td {
+            vertical-align: middle;
+        }
+
+        .entrada {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .salida {
+            color: #f44336;
+            font-weight: bold;
+        }
+    </style>
 </head>
 
 <body>
 
-<h2>Historial de Movimientos</h2>
+<h2>Movimientos del Producto</h2>
 
-<a class="btn" href="inventario.php">← Volver al Inventario</a>
+<div class="header-info">
+    <p><strong>Producto:</strong> <?= htmlspecialchars($producto['nombre']) ?></p>
+    <p><strong>Categoría:</strong> <?= htmlspecialchars($producto['categoria']) ?></p>
+</div>
+
+<a class="btn" href="inventario.php">⬅ Volver al Inventario</a>
+
+<h3>Historial de Movimientos</h3>
 
 <table>
     <thead>
         <tr>
-            <th>Fecha</th>
-            <th>Producto</th>
             <th>Tipo</th>
             <th>Cantidad</th>
-            <th>Descripción</th>
+            <th>Notas</th>
+            <th>Fecha</th>
         </tr>
     </thead>
 
     <tbody>
-        <?php foreach ($movimientos as $m): ?>
+        <?php if (empty($movimientos)): ?>
             <tr>
-                <td><?= $m['fecha'] ?></td>
-                <td><?= htmlspecialchars($m['producto']) ?></td>
-                <td>
-                    <?php if ($m['tipo'] == 'Salida'): ?>
-                        <span style="color:red; font-weight:bold;">Salida</span>
-                    <?php else: ?>
-                        <span style="color:green; font-weight:bold;">Entrada</span>
-                    <?php endif; ?>
+                <td colspan="4" style="text-align:center; padding:20px;">
+                    No hay movimientos registrados.
                 </td>
-                <td><?= $m['cantidad'] . " " . $m['unidad'] ?></td>
-                <td><?= htmlspecialchars($m['descripcion']) ?></td>
             </tr>
-        <?php endforeach; ?>
+        <?php else: ?>
+            <?php foreach ($movimientos as $m): ?>
+                <tr>
+                    <td>
+                        <?php if ($m['tipo'] === 'ENTRADA'): ?>
+                            <span class="entrada">ENTRADA</span>
+                        <?php else: ?>
+                            <span class="salida">SALIDA</span>
+                        <?php endif; ?>
+                    </td>
+
+                    <td><?= $m['cantidad'] ?></td>
+                    <td><?= htmlspecialchars($m['notas']) ?></td>
+                    <td><?= $m['fecha'] ?></td>
+                </tr>
+            <?php endforeach; ?>
+        <?php endif; ?>
     </tbody>
 </table>
 

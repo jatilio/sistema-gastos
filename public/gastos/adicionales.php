@@ -50,7 +50,12 @@ require_once '../../config/db.php';
                             "Home Depot","Groupon","Sophie’s Cafe","license plate","Whispering","Back of House","Theater",
                             "Dairy Queen Grill","Apple Books","Expedia","Wdw Popcorn","Overtheborder","OverDraft Item Fee",
                             "Via Napolli lake","Katsura Grill","Boulangerie","Somerfest","Floridays Resort Orlando",
-                            "The Cheesecake Factory","Ikea","Splitswille","Mobile pet wash", "chipotle", "Progressive Insurance - JE"
+                            "The Cheesecake Factory","Ikea","Splitswille","Mobile pet wash", "chipotle", "Progressive Insurance - JE",
+                            "Bar Helios", "Helios Hotel", "Artistic Body Work", "Vietaly Auto Spa", "Sunoco", "Humane Society",
+                            "Insufficient funds nsf fee","Universal Studios Store", "Amc food court", "Tamales","Parking lot", "Apple - Card", 
+                            "Midflorida", "Five Below","Nursing license","AMC Misc", "Family decisions","The Donut Man", "FLORIDADOH-MQA"
+                            
+                            
                         ];
 
                         foreach ($descripciones as $d) {
@@ -106,6 +111,8 @@ require_once '../../config/db.php';
                         <option value="Bank Of America">Bank Of America</option>
                         <option value="MidFlorida">MidFlorida</option>
                         <option value="Chase">Chase</option>
+                        <option value="Universal-Visa">Universal-Visa</option>
+                        <option value="Disney">Disney</option>
                         <option value="Otro">Otro</option>
                     </select>
                 </div>

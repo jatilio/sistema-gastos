@@ -115,6 +115,7 @@ switch($menu){
 <li><a href="gastos/inventario.php">Inventario</a></li>
 <li><a href="gastos/inventario_agregar.php">Agregar Producto</a></li>
 <li><a href="gastos/inventario_dashboard.php">Dashboard Inventario</a></li>
+<li><a href="gastos/inventario_movimientos_lista.php">Movimientos</a></li>
 
     </ul>
 </li>
