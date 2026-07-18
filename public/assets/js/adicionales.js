@@ -144,7 +144,12 @@ const categoriasAuto = {
     "AMC Misc": "Entretenimiento",
     "Family decisions": "Otros",
     "The Donut Man": "Restaurantes",
-    "FLORIDADOH-MQA": "Membresías"
+    "FLORIDADOH-MQA": "Membresías",
+    "Popeyes": "Restaurantes",
+    "Bryan Mexico": "Otros",
+    "CEUFAST": "Membresías",
+    "CEBROKER": "Membresías",
+    "Subcription Toyota": "Membresías"
 };
 
 function asignarCategoria(selectDescripcion) {

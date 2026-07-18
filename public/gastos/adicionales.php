@@ -53,7 +53,8 @@ require_once '../../config/db.php';
                             "The Cheesecake Factory","Ikea","Splitswille","Mobile pet wash", "chipotle", "Progressive Insurance - JE",
                             "Bar Helios", "Helios Hotel", "Artistic Body Work", "Vietaly Auto Spa", "Sunoco", "Humane Society",
                             "Insufficient funds nsf fee","Universal Studios Store", "Amc food court", "Tamales","Parking lot", "Apple - Card", 
-                            "Midflorida", "Five Below","Nursing license","AMC Misc", "Family decisions","The Donut Man", "FLORIDADOH-MQA"
+                            "Midflorida", "Five Below","Nursing license","AMC Misc", "Family decisions","The Donut Man", "FLORIDADOH-MQA", "Popeyes",
+                            "Bryan Mexico", "CEUFAST", "CEBROKER", "Subcription Toyota",
                             
                             
                         ];
