@@ -149,7 +149,15 @@ const categoriasAuto = {
     "Bryan Mexico": "Otros",
     "CEUFAST": "Membresías",
     "CEBROKER": "Membresías",
-    "Subcription Toyota": "Membresías"
+    "Subcription Toyota": "Membresías",
+    "Target": "Supermercado",
+    "Zaxbys": "Restaurantes",
+    "Cinepolis": "Entretenimiento",
+    "Cinepolis Misc": "Entretenimiento",
+    "Orenge lake": "Restaurantes",
+    "Universal estudios-HHN": "Entretenimiento",
+    "Crackerbarrel": "Restaurantes",
+    "AMC-Tickets": "Entretenimiento"
 };
 
 function asignarCategoria(selectDescripcion) {
