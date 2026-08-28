@@ -157,7 +157,19 @@ const categoriasAuto = {
     "Orenge lake": "Restaurantes",
     "Universal estudios-HHN": "Entretenimiento",
     "Crackerbarrel": "Restaurantes",
-    "AMC-Tickets": "Entretenimiento"
+    "AMC-Tickets": "Entretenimiento",
+    "Pollo Campero": "Restaurantes",
+    "Shell": "Gasolina",
+    "Taco Bell": "Restaurantes",
+    "Best Buy Total - Annual": "Membresías",
+    "Best Buy": "Supermercado",
+    "Ebay": "Supermercado",
+    "PRESTIGE-BARBERSHOP": "Cuidado personal",
+    "Amazon": "Membresías",
+    "Trader Joe's": "Supermercado",
+    "Ebisu": "Restaurantes",
+    "Hamburger Marys": "Restaurantes",
+    "goodwill": "Otros"
 };
 
 function asignarCategoria(selectDescripcion) {

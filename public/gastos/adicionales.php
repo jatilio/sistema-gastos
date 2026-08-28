@@ -55,7 +55,8 @@ require_once '../../config/db.php';
                             "Insufficient funds nsf fee","Universal Studios Store", "Amc food court", "Tamales","Parking lot", "Apple - Card", 
                             "Midflorida", "Five Below","Nursing license","AMC Misc", "Family decisions","The Donut Man", "FLORIDADOH-MQA", "Popeyes",
                             "Bryan Mexico", "CEUFAST", "CEBROKER", "Subcription Toyota","Target", "Zaxbys","Cinepolis", "Cinepolis Misc",
-                            "Orenge lake", "Universal estudios-HHN", "Crackerbarrel", "AMC-Tickets",
+                            "Orenge lake", "Universal estudios-HHN", "Crackerbarrel", "AMC-Tickets", "Pollo Campero","Shell", "Taco Bell", "Best Buy Total - Annual", "Best Buy","Ebay",
+                            "PRESTIGE-BARBERSHOP", "Amazon", "Trader Joe's", "Ebisu", "Hamburger Marys","GoodWill"
                             
                             
                         ];
