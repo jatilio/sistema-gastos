@@ -56,7 +56,8 @@ require_once '../../config/db.php';
                             "Midflorida", "Five Below","Nursing license","AMC Misc", "Family decisions","The Donut Man", "FLORIDADOH-MQA", "Popeyes",
                             "Bryan Mexico", "CEUFAST", "CEBROKER", "Subcription Toyota","Target", "Zaxbys","Cinepolis", "Cinepolis Misc",
                             "Orenge lake", "Universal estudios-HHN", "Crackerbarrel", "AMC-Tickets", "Pollo Campero","Shell", "Taco Bell", "Best Buy Total - Annual", "Best Buy","Ebay",
-                            "PRESTIGE-BARBERSHOP", "Amazon", "Trader Joe's", "Ebisu", "Hamburger Marys","GoodWill"
+                            "PRESTIGE-BARBERSHOP", "Amazon", "Trader Joe's", "Ebisu", "Hamburger Marys","GoodWill","FOURBOUYS LLC", "SPINX", "DUDLEY'S",
+                            "HeyDude", "RUE21", "PARKERS 80", " Firehouse subs", "Wanderlustifi", "Other expenses"
                             
                             
                         ];

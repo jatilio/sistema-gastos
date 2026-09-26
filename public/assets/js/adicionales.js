@@ -169,7 +169,16 @@ const categoriasAuto = {
     "Trader Joe's": "Supermercado",
     "Ebisu": "Restaurantes",
     "Hamburger Marys": "Restaurantes",
-    "goodwill": "Otros"
+    "goodwill": "Otros",
+    "FOURBOUYS LLC": "Entretenimiento",
+    "SPINX": "Gasolina",
+    "DUDLEY'S": "Entretenimiento",
+    "HeyDude": "Cuidado personal",
+    "RUE21": "Cuidado personal",
+    "PARKERS 80": "Gasolina",
+    "Firehouse subs": "Restaurantes",
+    "Wanderlustifi": "Otros",
+    "Other expenses": "Otros"
 };
 
 function asignarCategoria(selectDescripcion) {
