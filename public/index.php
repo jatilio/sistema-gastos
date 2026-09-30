@@ -99,6 +99,7 @@ switch($menu){
         <a href="index.php?menu=gastos_ingresar">➕ Ingresar gasto</a>
         <a href="index.php?menu=gastos_cobrados">🧾 Gastos del mes</a>
         <a href="/gastos/adicionales.php">📝 Gastos Adicionales</a>
+        <a href="top10.php?anio=2026&mes=09">🏆 Top 10 Gastos Adicionales
         <a href="index.php?menu=reportes">📑 Reportes</a>
         <a href="index.php?menu=reporte_metodo_pago">💳 Reporte por Método de Pago</a>
         <a href="index.php?menu=reporte_tarjetas">💳 Reporte de Tarjetas</a>

@@ -178,7 +178,8 @@ const categoriasAuto = {
     "PARKERS 80": "Gasolina",
     "Firehouse subs": "Restaurantes",
     "Wanderlustifi": "Otros",
-    "Other expenses": "Otros"
+    "Other expenses": "Otros",
+    "SILVERMOON DRIVE": "Entretenimiento",
 };
 
 function asignarCategoria(selectDescripcion) {
