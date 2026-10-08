@@ -1,0 +1,10 @@
+[33md4a99a8[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m Fix: validado funcionando correctamente en ingresar.php e ingresar_guardar.php
+[33m8bf07bf[m Top10 integrado al menú principal, nuevos CSS en assets, botón volver y mejoras en adicionales
+[33mbea0f83[m Actualización: nuevas modificaciones en adicionales.js y adicionales.php
+[33m4f742c4[m Actualización: nuevas modificaciones en adicionales.js y adicionales.php
+[33mbf71d27[m Actualización: cambios en adicionales.js y adicionales.php
+[33mf1ee70a[m Actualización de archivos adicionales
+[33mfb4fa07[m Actualización de adicionales e inventario: CSS, JS y módulos PHP
+[33m92a27be[m Actualización: método de pago, tarjeta_id y mejoras en ingresar_guardar.php
+[33m8175d75[m Corrección completa de filtro por mes, rutas, formulario y mejoras en ingresar.php
+[33m7c0f905[m Primer commit del sistema de gastos personales

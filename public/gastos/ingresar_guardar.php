@@ -14,6 +14,35 @@ if (!isset($_POST['id'])) {
 
 $id = intval($_POST['id']);
 
+/* ============================================================
+   1. DETECTAR SI SOLO SE ESTÁ GUARDANDO VALIDADO
+============================================================ */
+if (isset($_POST['validado'])) {
+
+    $validado = ($_POST['validado'] == 1) ? 1 : 0;
+
+    $sql = "
+        UPDATE gastos
+        SET validado = :validado
+        WHERE id = :id AND usuario_id = :usuario_id
+    ";
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        'validado'   => $validado,
+        'id'         => $id,
+        'usuario_id' => $usuario_id
+    ]);
+
+    // REDIRIGIR SIN AFECTAR NADA MÁS
+    header("Location: /gastos/ingresar.php");
+    exit;
+}
+
+/* ============================================================
+   2. SI NO ES VALIDADO → ES UN PAGO NORMAL
+============================================================ */
+
 // CAPTURAR CAMPOS
 $payment_date = $_POST['payment_date'] ?? null;
 $confirmation = $_POST['confirmation'] ?? null;
@@ -55,7 +84,7 @@ if (empty($payment_date)) {
     $payment_date = date("Y-m-d");
 }
 
-// ACTUALIZAR REGISTRO
+// ACTUALIZAR REGISTRO (PAGO)
 $sql = "
     UPDATE gastos
     SET 

@@ -14,7 +14,7 @@ $mes_str = str_pad($mes, 2, "0", STR_PAD_LEFT);
 $inicio  = "$anio-$mes_str-01";
 
 /* ============================================================
-   CONSULTA PRINCIPAL
+   CONSULTA PRINCIPAL (AQUÍ SOLO AGREGO validado)
 ============================================================ */
 $sql = "
     SELECT
@@ -26,7 +26,8 @@ $sql = "
         payment_date,
         confirmation,
         banco_pago,
-        notes
+        notes,
+        validado
     FROM gastos
     WHERE usuario_id = :usuario_id
       AND tipo = 'Fijo'
@@ -58,8 +59,6 @@ $sqlTarjetas = "
 
     ORDER BY nombre_tarjeta ASC
 ";
-
-
 
 $stmtTar = $pdo->prepare($sqlTarjetas);
 $stmtTar->execute(['usuario_id' => $usuario_id]);
@@ -114,14 +113,10 @@ $tarjetas = $stmtTar->fetchAll(PDO::FETCH_ASSOC);
     ← Regresar al Inicio
 </a>
 
-
 <h2>Ingresar Gastos</h2>
-
-
 
 <form method="GET" action="/gastos/ingresar.php"
       style="margin-bottom: 20px; display:flex; gap:10px; align-items:center;">
-
 
     <label>Mes:</label>
     <select name="mes">
@@ -145,8 +140,6 @@ $tarjetas = $stmtTar->fetchAll(PDO::FETCH_ASSOC);
 
 </form>
 
-
-
 <div class="table-container">
 <table>
     <tr>
@@ -160,6 +153,7 @@ $tarjetas = $stmtTar->fetchAll(PDO::FETCH_ASSOC);
         <th>Tarjeta</th>
         <th>Notes</th>
         <th>Acción</th>
+        <th>Validado</th> <!-- SOLO AGREGAMOS ESTA COLUMNA -->
     </tr>
 
 <?php 
@@ -179,25 +173,10 @@ foreach ($result as $row):
     <td>$<?= number_format($row['amount'], 2) ?></td>
     <td><?= $row['pagado'] ?></td>
 
-    <!-- FECHA PAGO -->
-    <td id="fp<?= $row['id'] ?>">
-        <?= $row['payment_date'] ?>
-    </td>
-
-    <!-- CONFIRMACION -->
-    <td id="cf<?= $row['id'] ?>">
-        <?= $row['confirmation'] ?>
-    </td>
-
-    <!-- TARJETA -->
-    <td id="tp<?= $row['id'] ?>">
-        <?= $row['banco_pago'] ?>
-    </td>
-
-    <!-- NOTES -->
-    <td id="nt<?= $row['id'] ?>">
-        <?= $row['notes'] ?>
-    </td>
+    <td id="fp<?= $row['id'] ?>"><?= $row['payment_date'] ?></td>
+    <td id="cf<?= $row['id'] ?>"><?= $row['confirmation'] ?></td>
+    <td id="tp<?= $row['id'] ?>"><?= $row['banco_pago'] ?></td>
+    <td id="nt<?= $row['id'] ?>"><?= $row['notes'] ?></td>
 
     <td id="ac<?= $row['id'] ?>">
         <?php if ($row['pagado'] == 'No'): ?>
@@ -205,6 +184,21 @@ foreach ($result as $row):
         <?php else: ?>
             ✔
         <?php endif; ?>
+    </td>
+
+    <!-- VALIDADO (SOLO AGREGO ESTO, NO TOCA NADA MÁS) -->
+    <td>
+        <form action="/gastos/ingresar_guardar.php" method="POST">
+            <input type="hidden" name="id" value="<?= $row['id'] ?>">
+            <input type="hidden" name="mes" value="<?= $mes ?>">
+            <input type="hidden" name="anio" value="<?= $anio ?>">
+
+            <input type="checkbox"
+                   name="validado"
+                   value="1"
+                   <?= ($row['validado'] == 1) ? 'checked' : '' ?>
+                   onchange="this.form.submit();">
+        </form>
     </td>
 
 </tr>
@@ -219,13 +213,11 @@ function habilitar(id) {
 
     const form = document.getElementById("form" + id);
 
-    // LIMPIAR LA FILA
     document.getElementById("fp" + id).innerHTML = "";
     document.getElementById("cf" + id).innerHTML = "";
     document.getElementById("tp" + id).innerHTML = "";
     document.getElementById("nt" + id).innerHTML = "";
 
-    // CREAR INPUTS DENTRO DEL FORM
     form.innerHTML += `
         <input type="hidden" name="id" value="${id}">
         <input type="hidden" name="row" value="${id}">
@@ -241,7 +233,6 @@ function habilitar(id) {
         <input type="text" name="notes" id="notes_${id}" style="display:none;">
     `;
 
-    // MOSTRAR INPUTS EN LA TABLA (VISUAL)
     document.getElementById("fp" + id).innerHTML =
         '<input class="inline-input" type="date" onchange="document.getElementById(\'payment_date_'+id+'\').value=this.value">';
 
@@ -259,12 +250,9 @@ function habilitar(id) {
     document.getElementById("nt" + id).innerHTML =
         '<input class="inline-input" type="text" onchange="document.getElementById(\'notes_'+id+'\').value=this.value">';
 
-    // BOTÓN GUARDAR
     document.getElementById("ac" + id).innerHTML =
         '<button class="btn-guardar" type="button" onclick="document.getElementById(\'form'+id+'\').submit()">Guardar</button>';
 }
-
-
 </script>
 
 </body>
