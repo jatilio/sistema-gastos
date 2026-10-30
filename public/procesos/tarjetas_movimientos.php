@@ -75,6 +75,9 @@ input[type=text], input[type=number], select{padding:8px;border:1px solid #ccc;b
 .alert{padding:8px;background:#e9f7ef;border:1px solid #cdebd6;margin-bottom:12px;border-radius:4px}
 .small{font-size:13px;color:#666}
 </style>
+<link rel="stylesheet" href="/assets/css/finance-responsive.css?v=1">
+<script src="/assets/js/finance-interface.js?v=1"></script>
+<script src="/assets/js/finance-language.js?v=1"></script>
 </head>
 
 <body>

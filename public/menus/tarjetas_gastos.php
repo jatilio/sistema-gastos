@@ -100,11 +100,11 @@ $gastos = $stmt2->fetchAll(PDO::FETCH_ASSOC);
             <tbody>
                 <?php foreach ($gastos as $g): ?>
                     <tr>
-                        <td><?= htmlspecialchars($g['nombre_tarjeta']) ?></td>
-                        <td><?= htmlspecialchars($g['banco']) ?></td>
-                        <td><?= htmlspecialchars($g['descripcion']) ?></td>
+                        <td><?= htmlspecialchars($g['nombre_tarjeta'] ?? '—') ?></td>
+                        <td><?= htmlspecialchars($g['banco'] ?? '—') ?></td>
+                        <td><?= htmlspecialchars($g['descripcion'] ?? '—') ?></td>
                         <td>$<?= number_format($g['amount'], 2) ?></td>
-                        <td><?= htmlspecialchars($g['due_date']) ?></td>
+                        <td><?= htmlspecialchars($g['due_date'] ?? '—') ?></td>
                         <td><?= $g['pagado'] === 'Si' ? '✔' : 'No' ?></td>
 
                         <td class="acciones">

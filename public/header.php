@@ -15,13 +15,16 @@ if (session_status() === PHP_SESSION_NONE) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Estilos globales -->
-    <link rel="stylesheet" href="/assets/css/estilos.css">
+    <link rel="stylesheet" href="/assets/css/finance-ui.css?v=1">
+<link rel="stylesheet" href="/assets/css/finance-responsive.css?v=1">
+<script src="/assets/js/finance-interface.js?v=1"></script>
+<script src="/assets/js/finance-language.js?v=2"></script>
 </head>
 
-<body>
+<body class="finance-standalone">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="/dashboard.php">Gastos</a>
+        <a class="navbar-brand" href="/index.php">Gastos</a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
@@ -35,11 +38,11 @@ if (session_status() === PHP_SESSION_NONE) {
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="/pagos/">Pagos</a>
+                    <a class="nav-link" href="/index.php?menu=mantenimiento_pagos">Pagos</a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="/reportes.php">Reportes</a>
+                    <a class="nav-link" href="/index.php?menu=reportes">Reportes</a>
                 </li>
 
             </ul>

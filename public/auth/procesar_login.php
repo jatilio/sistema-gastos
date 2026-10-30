@@ -1,11 +1,11 @@
 <?php
 session_start();
-require_once("../../config/db.php"); // conexión PDO
+require_once __DIR__ . "/../../config/db.php"; // conexión PDO
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $usuario  = trim($_POST['usuario']);
-    $password = trim($_POST['password']);
+    $usuario  = trim(is_string($_POST['usuario'] ?? null) ? $_POST['usuario'] : '');
+    $password = (is_string($_POST['password'] ?? null) ? $_POST['password'] : '');
 
     // Buscar usuario en la base de datos
     $stmt = $pdo->prepare("SELECT id, usuario, password FROM usuarios WHERE usuario = ?");
@@ -14,9 +14,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($user && password_verify($password, $user['password'])) {
 
+        session_regenerate_id(true);
+
         // Crear sesión
-        $_SESSION['usuario_id']     = $user['id'];
-        $_SESSION['usuario_nombre'] = $user['usuario'];
+        $_SESSION['usuario_autenticado_id'] = (int)$user['id'];
+        $_SESSION['usuario_id'] = (int)$user['id'];
+        resolverDatosFinanzas($pdo);
+        // El nombre visible lo establece resolverDatosFinanzas, separado del usuario de acceso.
 
         // 🔥 Redirección correcta al index con menú lateral
         header("Location: ../index.php?menu=dashboard");

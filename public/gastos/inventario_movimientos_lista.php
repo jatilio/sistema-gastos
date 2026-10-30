@@ -34,7 +34,7 @@ $mov = $pdo->prepare("
     <meta charset="UTF-8">
     <title>Movimientos del Inventario</title>
 
-    <link rel="stylesheet" href="../assets/css/estilos.css">
+    <link rel="stylesheet" href="/assets/css/finance-ui.css?v=1">
     <link rel="stylesheet" href="../assets/css/inventario.css">
 
     <style>
@@ -48,6 +48,10 @@ $mov = $pdo->prepare("
         .entrada { color: green; font-weight: bold; }
         .salida { color: red; font-weight: bold; }
     </style>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/assets/css/finance-responsive.css?v=1">
+<script src="/assets/js/finance-interface.js?v=1"></script>
+<script src="/assets/js/finance-language.js?v=1"></script>
 </head>
 
 <body>

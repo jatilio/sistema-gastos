@@ -10,28 +10,28 @@ new Chart(ctx, {
                 data: dataIngresos,
                 borderColor: "#2563eb",
                 backgroundColor: "rgba(37, 99, 235, 0.08)",
-                borderWidth: 4,
-                tension: 0.45,
+                borderWidth: 3,
+                tension: 0.25,
                 pointRadius: 4,
                 pointHoverRadius: 7,
                 pointBackgroundColor: "#ffffff",
                 pointBorderColor: "#2563eb",
                 pointBorderWidth: 3,
-                fill: true
+                fill: false
             },
             {
                 label: "Gastos",
                 data: dataGastos,
                 borderColor: "#ef4444",
                 backgroundColor: "rgba(239, 68, 68, 0.08)",
-                borderWidth: 4,
-                tension: 0.45,
+                borderWidth: 3,
+                tension: 0.25,
                 pointRadius: 4,
                 pointHoverRadius: 7,
                 pointBackgroundColor: "#ffffff",
                 pointBorderColor: "#ef4444",
                 pointBorderWidth: 3,
-                fill: true
+                fill: false
             }
         ]
     },
@@ -45,7 +45,7 @@ new Chart(ctx, {
         },
         plugins: {
             legend: {
-                position: "bottom",
+                position: "top",
                 labels: {
                     font: { size: 13, weight: "bold" },
                     padding: 20
@@ -54,7 +54,7 @@ new Chart(ctx, {
         },
         scales: {
             y: {
-                beginAtZero: false,
+                beginAtZero: true,
                 grid: { color: "rgba(0,0,0,0.05)" },
                 ticks: { font: { size: 12 } }
             },

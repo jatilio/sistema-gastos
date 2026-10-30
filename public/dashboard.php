@@ -136,7 +136,14 @@ $vencidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
 
-<h1>Dashboard financiero</h1>
+<div class="overview-heading">
+    <div><span class="eyebrow">Tu dinero, con claridad</span>
+        <h1>Resumen financiero</h1>
+        <p>Consulta tus ingresos, gastos y próximos compromisos.</p>
+    </div>
+    <div class="overview-actions"><a class="action-link secondary" href="/index.php?menu=reportes">Ver reportes</a><a
+            class="action-link" href="/gastos/adicionales.php">+ Registrar gastos</a></div>
+</div>
 
 <!-- ============================================================
      TARJETAS PRINCIPALES (4 TARJETAS)
@@ -172,16 +179,17 @@ $vencidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <h2>Próximos pagos (10 días)</h2>
 
     <?php if (empty($proximos)): ?>
-        <p class="no-alerts">No hay pagos próximos.</p>
+    <p class="no-alerts">No hay pagos próximos.</p>
     <?php else: ?>
-        <ul class="alert-list">
-            <?php foreach ($proximos as $p): ?>
-                <li class="alert-item proximo">
-                    <strong><?= htmlspecialchars($p['descripcion']) ?></strong>
-                    <span>$<?= number_format($p['amount'],2) ?> — vence el <?= date("d/m/Y", strtotime($p['due_date_real'])) ?></span>
-                </li>
-            <?php endforeach; ?>
-        </ul>
+    <ul class="alert-list">
+        <?php foreach ($proximos as $p): ?>
+        <li class="alert-item proximo">
+            <strong><?= htmlspecialchars($p['descripcion']) ?></strong>
+            <span>$<?= number_format($p['amount'],2) ?> — vence el
+                <?= date("d/m/Y", strtotime($p['due_date_real'])) ?></span>
+        </li>
+        <?php endforeach; ?>
+    </ul>
     <?php endif; ?>
 </div>
 
@@ -192,15 +200,16 @@ $vencidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <h2>Pagos vencidos</h2>
 
     <?php if (empty($vencidos)): ?>
-        <p class="no-alerts">No hay pagos vencidos.</p>
+    <p class="no-alerts">No hay pagos vencidos.</p>
     <?php else: ?>
-        <ul class="alert-list">
-            <?php foreach ($vencidos as $v): ?>
-                <li class="alert-item vencido">
-                    <strong><?= htmlspecialchars($v['descripcion']) ?></strong>
-                    <span>$<?= number_format($v['amount'],2) ?> — venció el <?= date("d/m/Y", strtotime($v['due_date_real'])) ?></span>
-                </li>
-            <?php endforeach; ?>
-        </ul>
+    <ul class="alert-list">
+        <?php foreach ($vencidos as $v): ?>
+        <li class="alert-item vencido">
+            <strong><?= htmlspecialchars($v['descripcion']) ?></strong>
+            <span>$<?= number_format($v['amount'],2) ?> — venció el
+                <?= date("d/m/Y", strtotime($v['due_date_real'])) ?></span>
+        </li>
+        <?php endforeach; ?>
+    </ul>
     <?php endif; ?>
 </div>

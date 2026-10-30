@@ -39,14 +39,18 @@ $sql = "
     FROM mantenimiento_pagos mp
 
     LEFT JOIN (
-        SELECT *
-        FROM gastos
-        WHERE usuario_id = :usuario_id
-          AND (
-                (pagado = 'Si' AND MONTH(payment_date) = :month AND YEAR(payment_date) = :year)
-                OR pagado = 'No'
-              )
-        GROUP BY mantenimiento_id
+        SELECT gasto.*
+        FROM gastos gasto
+        INNER JOIN (
+            SELECT MAX(id) AS id
+            FROM gastos
+            WHERE usuario_id = :usuario_id
+              AND (
+                    (pagado = 'Si' AND MONTH(payment_date) = :month AND YEAR(payment_date) = :year)
+                    OR pagado = 'No'
+                  )
+            GROUP BY mantenimiento_id
+        ) ultimo ON ultimo.id = gasto.id
     ) g ON g.mantenimiento_id = mp.id
 
     WHERE mp.usuario_id = :usuario_id
@@ -58,7 +62,7 @@ $sql = "
             OR g.pagado = 'No'
           )
 
-    GROUP BY mp.id
+
     ORDER BY mp.due_date ASC
 ";
 
@@ -91,6 +95,10 @@ $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
     .filtro { margin-bottom: 20px; }
 </style>
 
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/assets/css/finance-responsive.css?v=1">
+<script src="/assets/js/finance-interface.js?v=1"></script>
+<script src="/assets/js/finance-language.js?v=1"></script>
 </head>
 <body>
 

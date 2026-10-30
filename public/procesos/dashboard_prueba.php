@@ -31,6 +31,10 @@ $mes   = isset($_GET['mes']) ? (int)$_GET['mes'] : 0;
 $anio  = isset($_GET['anio']) ? (int)$_GET['anio'] : (int)date("Y");
 $banco = $_GET['banco'] ?? '';
 
+$mes = max(0, min(12, $mes));
+$anio = max(1900, min(9998, $anio));
+$banco = is_string($banco) ? $banco : '';
+
 $cond_banco_ing = ($banco !== '') ? " AND banco_origen = ?" : "";
 $cond_banco_gas = ($banco !== '') ? " AND banco_pago = ?"   : "";
 
@@ -129,105 +133,72 @@ $params_gas[] = $anio;
 // BALANCE
 $balance_total = $ingresos_mes - $gastos_mes;
 // ===============================
-// 4. GRÁFICO: OBTENER DATOS CRUDOS
+// 4. GRÁFICO: DESDE ENERO, INCLUYENDO MESES CON PAGOS ADELANTADOS
 // ===============================
+$hoyGrafico = new DateTimeImmutable('now', new DateTimeZone('America/New_York'));
+$anioGrafico = $anio;
+$mesGrafico = $anio < (int)$hoyGrafico->format('Y') ? 12 : ($anio === (int)$hoyGrafico->format('Y') ? (int)$hoyGrafico->format('n') : 1);
+$inicioGrafico = $anioGrafico . '-01-01';
+$finGrafico = ($anioGrafico + 1) . '-01-01';
+
 $stmt = $pdo->prepare("
-    SELECT 
-        CONCAT(year, '-', LPAD(month,2,'0')) AS periodo,
-        SUM(ingreso) AS total
+    SELECT month AS mes, SUM(ingreso) AS total
     FROM quincenas
-    WHERE usuario_id = ?
-      AND CONCAT(year,'-',LPAD(month,2,'0')) >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 6 MONTH), '%Y-%m')
-    GROUP BY periodo
-    ORDER BY periodo
+    WHERE usuario_id = ? AND year = ? AND month BETWEEN 1 AND ? $cond_banco_ing
+    GROUP BY month ORDER BY month
 ");
-$stmt->execute([$usuario_id]);
+$paramsGraficoIng = [$usuario_id, $anioGrafico, 12]; if ($banco !== '') $paramsGraficoIng[] = $banco;
+$stmt->execute($paramsGraficoIng);
 $ingresos_grafico = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $stmt = $pdo->prepare("
-    SELECT 
-        DATE_FORMAT(
-            CASE 
-                WHEN tipo = 'Fijo' THEN due_date
-                ELSE payment_date
-            END,
-        '%Y-%m') AS periodo,
-        SUM(amount) AS total
+    SELECT MONTH(CASE WHEN tipo = 'Fijo' THEN due_date ELSE payment_date END) AS mes,
+           SUM(amount) AS total
     FROM gastos
-    WHERE usuario_id = ?
-      AND pagado = 'Si'
-      AND (
-            (tipo='Fijo'      AND due_date      >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH))
-         OR (tipo='Adicional' AND payment_date >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH))
-      )
-    GROUP BY periodo
-    ORDER BY periodo
+    WHERE usuario_id = ? AND pagado = 'Si' AND metodo_pago = 'debito'
+      AND ((tipo = 'Fijo' AND due_date >= ? AND due_date < ?)
+        OR (tipo = 'Adicional' AND payment_date >= ? AND payment_date < ?))
+      $cond_banco_gas
+    GROUP BY mes ORDER BY mes
 ");
-$stmt->execute([$usuario_id]);
+$paramsGraficoGas = [$usuario_id, $inicioGrafico, $finGrafico, $inicioGrafico, $finGrafico]; if ($banco !== '') $paramsGraficoGas[] = $banco;
+$stmt->execute($paramsGraficoGas);
 $gastos_grafico = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// ===============================
-// 5. PROCESAR DATOS PARA EL GRÁFICO (SOLO MESES EXISTENTES)
-// ===============================
-
-$labels = [];
-$data_ing = [];
-$data_gas = [];
-
-// Convertir ingresos
-foreach ($ingresos_grafico as $i) {
-    $labels[] = date("M", strtotime($i['periodo'] . "-01"));
-    $data_ing[] = (float)$i['total'];
+// Extender el eje hasta el último mes registrado, incluidos los pagos adelantados.
+foreach (array_merge($ingresos_grafico, $gastos_grafico) as $filaGrafico) {
+    $mesGrafico = max($mesGrafico, (int)$filaGrafico['mes']);
 }
-
-// Convertir gastos
-foreach ($gastos_grafico as $g) {
-    $mes_graf = date("M", strtotime($g['periodo'] . "-01"));
-    $index = array_search($mes_graf, $labels);
-
-    if ($index !== false) {
-        $data_gas[$index] = (float)$g['total'];
-    }
+// Incluir también los meses sin movimientos, con valor cero.
+$nombresMesGrafico = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+$labels = array_slice($nombresMesGrafico, 0, $mesGrafico);
+$data_ing = array_fill(0, $mesGrafico, 0.0);
+$data_gas = array_fill(0, $mesGrafico, 0.0);
+foreach ($ingresos_grafico as $filaGrafico) {
+    $data_ing[(int)$filaGrafico['mes'] - 1] = (float)$filaGrafico['total'];
 }
-
-// Rellenar gastos faltantes con 0
-foreach ($labels as $k => $v) {
-    if (!isset($data_gas[$k])) {
-        $data_gas[$k] = 0;
-    }
+foreach ($gastos_grafico as $filaGrafico) {
+    $data_gas[(int)$filaGrafico['mes'] - 1] = (float)$filaGrafico['total'];
 }
 
 // ===============================
-// 5B. GASTOS ADICIONALES MENSUALES
-// ===============================
-
+// Serie mensual de adicionales: debe existir antes de preparar los tres gráficos.
 $stmt = $pdo->prepare("
-    SELECT 
-        MONTH(payment_date) AS mes,
-        SUM(amount) AS total
+    SELECT MONTH(payment_date) AS mes, SUM(amount) AS total
     FROM gastos
-    WHERE usuario_id = ?
-      AND tipo = 'Adicional'
-      AND pagado = 'Si'
-      AND YEAR(payment_date) = ?
-    GROUP BY MONTH(payment_date)
-    ORDER BY mes ASC
+    WHERE usuario_id = ? AND pagado = 'Si' AND tipo = 'Adicional' AND metodo_pago = 'debito'
+      AND payment_date >= ? AND payment_date < ?
+      $cond_banco_gas
+    GROUP BY mes ORDER BY mes
 ");
-$stmt->execute([$usuario_id, $anio]);
-$adicionales_grafico = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Preparar datos
+$paramsGraficoAdic = [$usuario_id, $inicioGrafico, $finGrafico]; if ($banco !== '') $paramsGraficoAdic[] = $banco;
+$stmt->execute($paramsGraficoAdic);
 $labels_adic = [];
 $totales_adic = [];
-
-$meses_nombre = [1=>'Ene',2=>'Feb',3=>'Mar',4=>'Abr',5=>'May',6=>'Jun',7=>'Jul',8=>'Ago',9=>'Sep',10=>'Oct',11=>'Nov',12=>'Dic'];
-
-foreach ($adicionales_grafico as $row) {
-    $labels_adic[] = $meses_nombre[(int)$row['mes']];
-    $totales_adic[] = (float)$row['total'];
+foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $filaGrafico) {
+    $labels_adic[] = $nombresMesGrafico[(int)$filaGrafico['mes'] - 1];
+    $totales_adic[] = (float)$filaGrafico['total'];
 }
-
-// ===============================
 // 6. CUENTAS VINCULADAS (SALDO DISPONIBLE POR BANCO / TARJETA)
 
 $stmt = $pdo->prepare("
@@ -304,30 +275,59 @@ $proximos_pagos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 // 9. GASTOS POR CATEGORÍA (MES ACTUAL)
 // ===============================
 
-$stmt = $pdo->prepare("
-    SELECT categoria, SUM(amount) AS total
-    FROM gastos
-    WHERE usuario_id = ?
-      AND pagado = 'Si'
-      AND tipo = 'Adicional'
-      AND categoria IS NOT NULL
-      AND categoria != ''
-      AND MONTH(payment_date) = ?
-      AND YEAR(payment_date) = ?
-    GROUP BY categoria
-    ORDER BY total DESC
-");
-
-$stmt->execute([$usuario_id, $mes == 0 ? date("m") : $mes, $anio]);
+$stmt = $pdo->prepare(str_replace('SELECT IFNULL(SUM(amount),0)', "SELECT categoria, SUM(amount) AS total", $sql_gastos) . " AND tipo = 'Adicional' GROUP BY categoria ORDER BY total DESC");
+$stmt->execute($params_gas);
 $categorias_gastos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
 $labels_cat = [];
 $totales_cat = [];
 
 foreach ($categorias_gastos as $c) {
-    $labels_cat[] = strtoupper($c['categoria']);
+    $labels_cat[] = strtoupper($c['categoria'] ?? 'Sin categoría');
     $totales_cat[] = (float)$c['total'];
 }
+
+// Indicadores del diseño renovado: mismo criterio de débito y filtros que el total.
+$nombresAnalisis = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+$periodoAnalisis = $mes ? $nombresAnalisis[$mes - 1] . ' ' . $anio : 'Acumulado ' . $anio;
+$desgloseStmt = $pdo->prepare(str_replace('SELECT IFNULL(SUM(amount),0)', 'SELECT tipo, IFNULL(SUM(amount),0) AS total', $sql_gastos) . ' GROUP BY tipo');
+$desgloseStmt->execute($params_gas);
+$desgloseAnalisis = ['Fijo'=>0.0, 'Adicional'=>0.0];
+foreach ($desgloseStmt->fetchAll(PDO::FETCH_ASSOC) as $filaAnalisis) {
+    $desgloseAnalisis[$filaAnalisis['tipo']] = (float)$filaAnalisis['total'];
+}
+$ahorroAnalisis = $ingresos_mes > 0 ? ($balance_total / $ingresos_mes) * 100 : null;
+$inicioAnalisis = new DateTimeImmutable(sprintf('%04d-%02d-01', $anio, $mes ?: 1));
+$finAnalisis = $inicioAnalisis->modify($mes ? '+1 month' : '+1 year');
+$inicioAnterior = $inicioAnalisis->modify($mes ? '-1 month' : '-1 year');
+$condPeriodoAnalisis = "usuario_id = ? AND pagado = 'Si' AND metodo_pago = 'debito'
+    AND ((tipo = 'Fijo' AND due_date >= ? AND due_date < ?)
+      OR (tipo = 'Adicional' AND payment_date >= ? AND payment_date < ?)) $cond_banco_gas";
+$paramsAnterior = [$usuario_id, $inicioAnterior->format('Y-m-d'), $inicioAnalisis->format('Y-m-d'), $inicioAnterior->format('Y-m-d'), $inicioAnalisis->format('Y-m-d')];
+if ($banco !== '') $paramsAnterior[] = $banco;
+$stmt = $pdo->prepare("SELECT COUNT(*) AS cantidad, COALESCE(SUM(amount),0) AS total FROM gastos WHERE $condPeriodoAnalisis");
+$stmt->execute($paramsAnterior);
+$anteriorAnalisis = $stmt->fetch(PDO::FETCH_ASSOC);
+$diferenciaAnalisis = $gastos_mes - (float)$anteriorAnalisis['total'];
+$variacionAnalisis = (float)$anteriorAnalisis['total'] > 0 ? $diferenciaAnalisis / (float)$anteriorAnalisis['total'] * 100 : null;
+$etiquetaAnterior = $mes ? $nombresAnalisis[(int)$inicioAnterior->format('n') - 1] . ' ' . $inicioAnterior->format('Y') : (string)($anio - 1);
+
+$mesReferencia = $mes ?: ($anio === (int)$hoyGrafico->format('Y') ? (int)$hoyGrafico->format('n') : 12);
+$corteAdelantos = new DateTimeImmutable(sprintf('%04d-%02d-01', $anio, $mesReferencia));
+$corteAdelantos = $corteAdelantos->modify('+1 month')->format('Y-m-d');
+$stmt = $pdo->prepare("SELECT DATE_FORMAT(due_date, '%Y-%m') AS periodo, SUM(amount) AS total
+    FROM gastos WHERE usuario_id = ? AND pagado = 'Si' AND metodo_pago = 'debito'
+      AND tipo = 'Fijo' AND due_date >= ? AND payment_date < ? $cond_banco_gas
+    GROUP BY periodo ORDER BY periodo");
+$paramsAdelantos = [$usuario_id, $corteAdelantos, $corteAdelantos];
+if ($banco !== '') $paramsAdelantos[] = $banco;
+$stmt->execute($paramsAdelantos);
+$adelantosAnalisis = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$totalAdelantos = array_sum(array_map(static fn($fila) => (float)$fila['total'], $adelantosAnalisis));
+
+// Distribución real: no se inventan límites de presupuesto.
+$stmt = $pdo->prepare(str_replace('SELECT IFNULL(SUM(amount),0)', "SELECT COALESCE(NULLIF(TRIM(categoria), ''), 'Sin categoría') AS categoria, SUM(amount) AS total", $sql_gastos) . ' GROUP BY categoria ORDER BY total DESC');
+$stmt->execute($params_gas);
+$distribucionAnalisis = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
 
@@ -339,231 +339,37 @@ foreach ($categorias_gastos as $c) {
 =============================== -->
 
 
-<div class="dashboard-wrapper">
-
-    <!-- FILTROS -->
-    <form method="GET" action="index.php" class="filtros-wrapper">
+<link rel="stylesheet" href="/assets/css/analysis-premium.css?v=1">
+<div class="dashboard-wrapper analysis-premium">
+    <header class="analysis-heading"><div><span class="analysis-kicker">TUS FINANZAS, EN PERSPECTIVA</span><h1>Análisis financiero</h1><p>Entiende tus gastos y planifica los próximos meses.</p></div><span class="analysis-period"><?= htmlspecialchars($periodoAnalisis) ?></span></header>
+    <form method="GET" action="index.php" class="analysis-filters">
         <input type="hidden" name="menu" value="dashboard_prueba">
-
-        <div class="filtro-group">
-            <label>Mes</label>
-            <select name="mes" class="filtro-select">
-                <option value="0" <?= ($mes == 0 ? 'selected' : '') ?>>Todos</option>
-                <?php for ($m = 1; $m <= 12; $m++): ?>
-                    <option value="<?= $m ?>" <?= ($m == $mes) ? 'selected' : '' ?>>
-                        <?= date("F", mktime(0,0,0,$m,1)) ?>
-                    </option>
-                <?php endfor; ?>
-            </select>
-        </div>
-
-        <div class="filtro-group">
-            <label>Año</label>
-            <select name="anio" class="filtro-select">
-                <?php for ($y = date("Y") - 3; $y <= date("Y") + 1; $y++): ?>
-                    <option value="<?= $y ?>" <?= ($y == $anio) ? 'selected' : '' ?>>
-                        <?= $y ?>
-                    </option>
-                <?php endfor; ?>
-            </select>
-        </div>
-
-        <div class="filtro-group">
-            <label>Banco</label>
-            <select name="banco" class="filtro-select">
-                <option value="" <?= ($banco == '' ? 'selected' : '') ?>>Todos</option>
-                <option value="MIDFLORIDA" <?= ($banco=='MIDFLORIDA')?'selected':'' ?>>MIDFLORIDA</option>
-                <option value="BANK OF AMERICA" <?= ($banco=='BANK OF AMERICA')?'selected':'' ?>>BANK OF AMERICA</option>
-            </select>
-        </div>
-
-        <button type="submit" class="btn-filtrar">Filtrar</button>
+        <label>Mes<select name="mes"><option value="0" <?= !$mes ? 'selected' : '' ?>>Todos los meses</option><?php foreach ($nombresAnalisis as $i => $nombre): ?><option value="<?= $i + 1 ?>" <?= $mes === $i + 1 ? 'selected' : '' ?>><?= $nombre ?></option><?php endforeach; ?></select></label>
+        <label>Año<select name="anio"><?php for ($y = (int)date('Y') - 3; $y <= (int)date('Y') + 1; $y++): ?><option <?= $y === $anio ? 'selected' : '' ?>><?= $y ?></option><?php endfor; ?></select></label>
+        <label>Banco<select name="banco"><?php foreach ([''=>'Todos','MIDFLORIDA'=>'MidFlorida','BANK OF AMERICA'=>'Bank of America'] as $valor => $nombre): ?><option value="<?= $valor ?>" <?= $banco === $valor ? 'selected' : '' ?>><?= $nombre ?></option><?php endforeach; ?></select></label>
+        <button type="submit">Aplicar filtros</button>
     </form>
-
-    <!-- TARJETAS PRINCIPALES -->
-    <div class="main-cards">
-
-        <div class="big-card white">
-            <h3>Balance Total</h3>
-            <div class="big-value"><?= ($balance_total >= 0 ? '' : '-') ?>$<?= number_format(abs($balance_total), 2) ?></div>
-        </div>
-
-        <div class="big-card white">
-            <h3>Ingresos Totales</h3>
-            <div class="big-value positivo">$<?= number_format($ingresos_mes, 2) ?></div>
-        </div>
-
-        <div class="big-card white">
-            <h3>Gastos Totales</h3>
-            <div class="big-value negativo">$<?= number_format($gastos_mes, 2) ?></div>
-        </div>
-
+    <p class="analysis-scope">Indicadores de <?= htmlspecialchars(mb_strtolower($periodoAnalisis)) ?> · Gastos pagados con débito · Fijos por vencimiento y adicionales por fecha de pago.</p>
+    <div class="analysis-kpis">
+        <section class="analysis-kpi"><span class="analysis-icon income">↗</span><div><h2>Ingresos</h2><strong class="analysis-value">$<?= number_format($ingresos_mes,2) ?></strong><span class="analysis-caption">En el período seleccionado</span></div></section>
+        <section class="analysis-kpi"><span class="analysis-icon expense">↘</span><div><h2>Gastos pagados</h2><strong class="analysis-value">$<?= number_format($gastos_mes,2) ?></strong><dl class="analysis-breakdown"><div><dt>Fijos</dt><dd>$<?= number_format($desgloseAnalisis['Fijo'],2) ?></dd></div><div><dt>Adicionales</dt><dd>$<?= number_format($desgloseAnalisis['Adicional'],2) ?></dd></div></dl></div></section>
+        <section class="analysis-kpi"><span class="analysis-icon balance">$</span><div><h2>Saldo disponible</h2><strong class="analysis-value <?= $balance_total < 0 ? 'negative' : '' ?>">$<?= number_format($balance_total,2) ?></strong><span class="analysis-caption">Ingresos menos gastos del período</span></div></section>
+        <section class="analysis-kpi"><span class="analysis-icon saving">▥</span><div><h2><?= $mes ? 'Ahorro del mes' : 'Ahorro del período' ?></h2><strong class="analysis-value <?= $balance_total < 0 ? 'negative' : '' ?>"><?= $ahorroAnalisis === null ? '—' : number_format($ahorroAnalisis,1) . '%' ?></strong><span class="analysis-caption"><?= $ahorroAnalisis === null ? 'Sin ingresos para calcular el porcentaje' : 'Porcentaje de ingresos disponible' ?></span></div></section>
     </div>
-
-    <!-- GRÁFICO + PANEL DERECHO -->
-    <div class="bottom-flex">
-
-        <!-- IZQUIERDA -->
-        <div class="left-column">
-
-            <!-- GRÁFICO -->
-            <div class="chart-box big-chart">
-                <div class="section-header">
-                    <h3>Ingresos vs Gastos</h3>
-                </div>
-                <canvas id="chartIngresosGastos"></canvas>
-                
-            </div> <!-- cierre del chart principal -->
-
-<!-- NUEVO GRÁFICO DE ADICIONALES -->
-<!-- AQUI AGREGAS EL NUEVO GRAFICO -->
-<div class="chart-box big-chart" style="margin-top: 25px;">
-    <div class="section-header">
-        <h3>Gastos Adicionales Mensuales</h3>
+    <section class="analysis-panel analysis-line"><div class="analysis-panel-heading"><div><h2>Ingresos vs gastos por mes</h2><p>Enero a <?= $nombresMesGrafico[$mesGrafico - 1] ?> de <?= $anioGrafico ?> · Incluye pagos adelantados</p></div></div><div class="analysis-canvas"><canvas id="chartIngresosGastos" aria-label="Ingresos y gastos mensuales" role="img"></canvas></div></section>
+    <aside class="analysis-advances"><span class="analysis-icon balance">▣</span><div><strong>Pagos adelantados: $<?= number_format($totalAdelantos,2) ?></strong><p>Pagados antes del cierre de <?= $nombresAnalisis[$mesReferencia - 1] ?> <?= $anio ?>, con vencimiento en meses posteriores. Se muestran en su mes de vencimiento.</p><?php if ($adelantosAnalisis): ?><div class="analysis-advance-months"><?php foreach ($adelantosAnalisis as $adelanto): ?><span><?= $nombresAnalisis[(int)substr($adelanto['periodo'],5,2)-1] ?> <?= substr($adelanto['periodo'],0,4) ?>: $<?= number_format($adelanto['total'],2) ?></span><?php endforeach; ?></div><?php endif; ?></div></aside>
+    <div class="analysis-insights">
+        <section class="analysis-panel"><h2><?= $mes ? 'Comparación mensual' : 'Comparación anual' ?></h2><p class="analysis-muted">Gastos vs <?= htmlspecialchars($etiquetaAnterior) ?></p><?php if (!$anteriorAnalisis['cantidad']): ?><p class="analysis-empty">No hay registros del período anterior para comparar.</p><?php else: ?><div class="analysis-comparison <?= $diferenciaAnalisis <= 0 ? 'favorable' : 'unfavorable' ?>"><strong><?= $variacionAnalisis === null ? '—' : ($variacionAnalisis > 0 ? '+' : '') . number_format($variacionAnalisis,1) . '%' ?></strong><p><?= $diferenciaAnalisis == 0 ? 'El gasto se mantuvo igual.' : 'Gastaste $' . number_format(abs($diferenciaAnalisis),2) . ($diferenciaAnalisis < 0 ? ' menos.' : ' más.') ?></p></div><?php endif; ?></section>
+        <section class="analysis-panel"><h2>Distribución por categoría</h2><p class="analysis-muted">Participación en los gastos del período. Sin límites de presupuesto definidos.</p><?php if (!$distribucionAnalisis): ?><p class="analysis-empty">No hay gastos en este período.</p><?php else: ?><?php foreach (array_slice($distribucionAnalisis,0,5) as $categoria): $porcentaje = $gastos_mes > 0 ? max(0,min(100,(float)$categoria['total']/$gastos_mes*100)) : 0; ?><div class="analysis-category"><div><span><?= htmlspecialchars($categoria['categoria']) ?></span><strong>$<?= number_format($categoria['total'],2) ?></strong></div><progress max="100" value="<?= $porcentaje ?>" aria-label="<?= htmlspecialchars($categoria['categoria'],ENT_QUOTES) ?>"></progress><small><?= number_format($porcentaje,1) ?>% del total</small></div><?php endforeach; ?><?php endif; ?></section>
     </div>
-    <canvas id="chartAdicionales"></canvas>
-</div> <!-- FIN DEL CAMBIO -->
-
-
-            <!-- PRÓXIMOS PAGOS -->
-            <div class="panel-section compact-pagos">
-                <div class="section-header">
-                    <h3>Próximos Pagos</h3>
-                </div>
-
-                <?php $proximos_5 = array_slice($proximos_pagos, 0, 5); ?>
-
-                <?php if (empty($proximos_5)): ?>
-                    <div class="list-item">
-                        <div class="left-info">
-                            <p class="t-desc">No hay pagos próximos</p>
-                        </div>
-                    </div>
-                <?php else: ?>
-                    <?php foreach ($proximos_5 as $p): ?>
-                        <div class="list-item">
-                            <div class="left-info">
-                                <p class="t-desc"><?= strtoupper($p['nombre']) ?></p>
-                                <p class="t-meta"><?= date("m/d/Y", strtotime($p['fecha'])) ?></p>
-                            </div>
-                            <div class="t-monto negativo">
-                                -$<?= number_format($p['amount'], 2) ?>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </div>
-
-        </div>
-
-        <!-- DERECHA -->
-        <div class="right-panel">
-
-<!-- CUENTAS -->
-<div class="panel-section">
-    <div class="section-header">
-        <h3>Cuentas Vinculadas - Disponible</h3>
+    <section class="analysis-panel analysis-bars"><div class="analysis-panel-heading"><div><h2>Gastos adicionales mensuales</h2><p><?= $anioGrafico ?> · Solo meses con registros · Pagos con débito</p></div></div><div class="analysis-canvas"><canvas id="chartAdicionales" aria-label="Gastos adicionales por mes" role="img"></canvas></div></section>
+    <div class="analysis-support">
+        <section class="analysis-panel"><h2>Cuentas vinculadas · Disponible</h2><p class="analysis-muted">Saldos actuales de tus cuentas.</p><?php foreach ($cuentas as $cuenta): ?><div class="analysis-list-row"><span><?= htmlspecialchars($cuenta['banco'] ?? '') ?></span><strong>$<?= number_format((float)$cuenta['disponible'],2) ?></strong></div><?php endforeach; ?></section>
+        <section class="analysis-panel"><h2>Transacciones recientes</h2><p class="analysis-muted">Últimos movimientos, independientemente del período.</p><?php foreach ($transacciones as $movimiento): ?><div class="analysis-list-row"><div><span><?= htmlspecialchars($movimiento['descripcion'] ?? $movimiento['nombre'] ?? 'Movimiento') ?></span><small><?= !empty($movimiento['fecha']) ? date('d/m/Y', strtotime($movimiento['fecha'])) : 'Sin fecha' ?></small></div><strong class="<?= ($movimiento['tipo'] ?? 'gasto') === 'ingreso' ? 'analysis-incoming' : 'analysis-outgoing' ?>"><?= ($movimiento['tipo'] ?? 'gasto') === 'ingreso' ? '+' : '−' ?>$<?= number_format((float)($movimiento['monto'] ?? $movimiento['amount'] ?? 0),2) ?></strong></div><?php endforeach; ?></section>
+        <section class="analysis-panel"><h2>Próximos pagos</h2><?php if (!$proximos_pagos): ?><p class="analysis-empty">No hay pagos próximos.</p><?php else: ?><?php foreach ($proximos_pagos as $pago): ?><div class="analysis-list-row"><div><span><?= htmlspecialchars($pago['nombre']) ?></span><small><?= date('d/m/Y',strtotime($pago['fecha'])) ?></small></div><strong>$<?= number_format($pago['amount'],2) ?></strong></div><?php endforeach; ?><?php endif; ?></section>
+        <section class="analysis-panel analysis-category-chart"><h2>Gastos adicionales por categoría</h2><div class="analysis-canvas"><canvas id="chartCategorias" role="img" aria-label="Distribución de gastos adicionales"></canvas></div></section>
     </div>
-
-    <?php foreach ($cuentas as $c): ?>
-        <div class="list-item">
-            <div class="left-info">
-                <p class="t-desc"><?= strtoupper($c['banco']) ?></p>
-            </div>
-
-            <div class="t-monto <?= ($c['disponible'] >= 0 ? 'positivo' : 'negativo') ?>">
-                $<?= number_format(floatval($c['disponible']), 2) ?>
-            </div>
-        </div>
-    <?php endforeach; ?>
-
 </div>
-
-
-        <!-- TRANSACCIONES -->
-        <div class="panel-section">
-            <div class="section-header">
-                <h3>Transacciones Recientes</h3>
-            </div>
-            
-        
-
-<?php foreach (array_slice($transacciones, 0, 7) as $t): ?>
-
-    <?php
-        $tipo  = $t['tipo'] ?? 'gasto';
-        $monto = (float)($t['monto'] ?? 0);
-
-        // Si es ingreso (quincena)
-        if ($tipo === 'ingreso') {
-
-            // Si viene el número de quincena
-            if (isset($t['quincena'])) {
-                $nombre = 'ABONO (' . $t['quincena'] . ')';
-            } else {
-                // Si no viene quincena, usar ABONO sin monto
-                $nombre = 'ABONO';
-            }
-
-        } else {
-            // Para gastos, usar nombre normal
-            $nombre = $t['nombre']
-                ?? $t['descripcion']
-                ?? $t['nombre_pago']
-                ?? $t['descripcion_pago']
-                ?? 'Movimiento';
-        }
-
-        // Fecha segura
-        $fecha = !empty($t['fecha']) ? date("m/d/Y", strtotime($t['fecha'])) : '';
-    ?>
-
-    <div class="list-item">
-        <div class="left-info">
-            <p class="t-desc"><?= strtoupper($nombre) ?></p>
-            <p class="t-meta"><?= $fecha ?></p>
-        </div>
-
-        <div class="t-monto <?= ($tipo == 'ingreso' ? 'positivo' : 'negativo') ?>">
-            <?= ($tipo == 'ingreso' ? '+' : '-') ?>$<?= number_format(abs($monto), 2) ?>
-        </div>
-    </div>
-
-
-    
-
-<?php endforeach; ?>
-
-</div> <!-- cierre del panel de transacciones -->
-<!-- AQUI AGREGAS EL NUEVO GRAFICO -->
-<div class="panel-section" style="
-    margin-top: 25px;
-    height: 360px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-">
-    <div class="section-header" style="margin-bottom: 8px;">
-        <h3>Gastos por Categoría</h3>
-    </div>
-
-    <div style="height: 70%; width: 100%; display: flex; justify-content: center;">
-        <canvas id="chartCategorias"></canvas>
-    </div>
-
-    <div id="legendCategorias" style="height: 30%; width: 100%;"></div>
-</div>
-<!-- FIN DEL NUEVO GRAFICO -->
-
-</div>
-</div>
-</div>
-</div>
-</div>
-
-
-
-
 <!-- 1. Variables PHP convertidas a JS -->
 <script>
     const labelsCategorias = <?= json_encode($labels_cat) ?>;
@@ -580,11 +386,11 @@ foreach ($categorias_gastos as $c) {
 <!-- 2. Chart.js -->
  <!-- CARGA Chart.js SOLO UNA VEZ -->
 <!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 
 <!-- Tus archivos JS externos -->
-<script src="../assets/js/chart-categorias.js"></script>
-<script src="../assets/js/chart-ingresos-gastos.js"></script>
-<script src="../assets/js/chart-adicionales.js"></script>
+<script src="/assets/js/chart-categorias.js"></script>
+<script src="/assets/js/chart-ingresos-gastos.js"></script>
+<script src="/assets/js/chart-adicionales.js"></script>
 
 

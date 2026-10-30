@@ -1,9 +1,10 @@
 <?php
-$host = 'localhost';
-$db   = 'finanzas';
-$user = 'root';
-$pass = 'root';
-$charset = 'utf8mb4';
+$local = is_file(__DIR__.'/db.local.php') ? require __DIR__.'/db.local.php' : [];
+$host = getenv('FINANZAS_DB_HOST') ?: ($local['host'] ?? '');
+$db = getenv('FINANZAS_DB_DB') ?: ($local['db'] ?? '');
+$user = getenv('FINANZAS_DB_USER') ?: ($local['user'] ?? '');
+$pass = getenv('FINANZAS_DB_PASS') ?: ($local['pass'] ?? '');
+$charset = getenv('FINANZAS_DB_CHARSET') ?: ($local['charset'] ?? 'utf8mb4');
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
 $options = [
@@ -16,4 +17,6 @@ try {
 } catch (Exception $e) {
     die('Error de conexión: ' . $e->getMessage());
 }
-?>
+
+require_once __DIR__.'/datos_compartidos.php';
+resolverDatosFinanzas($pdo);

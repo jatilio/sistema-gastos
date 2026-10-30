@@ -203,7 +203,7 @@ function asignarCategoria(selectDescripcion) {
   const descripcion = selectDescripcion.value.trim().toLowerCase();
 
   // Categoría automática
-  categoriaSelect.value = categoriasAuto[descripcion] || "";
+  categoriaSelect.value = Object.entries(categoriasAuto).find(([nombre]) => nombre.trim().toLowerCase() === descripcion)?.[1] || "";
 
   // Automatización especial para ATM Retiro
   if (descripcion === "atm retiro") {

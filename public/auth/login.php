@@ -10,7 +10,7 @@ if (isset($_SESSION['usuario_id'])) {
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Login | Finanzas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>Iniciar sesión | Finanzas</title>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
 /* --- Reset básico --- */
@@ -122,21 +122,29 @@ body {
     text-align: center;
 }
 </style>
+<link rel="stylesheet" href="/assets/css/finance-ui.css?v=1"><link rel="stylesheet" href="/assets/css/finance-responsive.css?v=1">
+<script src="/assets/js/finance-interface.js?v=1"></script>
+<script src="/assets/js/finance-language.js?v=1"></script>
 </head>
-<body>
+<body class="finance-login">
 
 <div class="login-box">
-    <h2>Iniciar sesión</h2>
+    <div class="login-brand">Finanzas<span>.</span></div>
+    <p class="login-intro">Un espacio para organizar tu dinero.</p>
+    <h2>Bienvenido de nuevo</h2>
+    <?php if (!empty($_SESSION['error'])): ?>
+    <div class="login-error" role="alert"><?= htmlspecialchars($_SESSION['error'], ENT_QUOTES, 'UTF-8') ?></div>
+    <?php unset($_SESSION['error']); endif; ?>
     <form method="POST" action="procesar_login.php">
         <div class="input-group">
-            <input type="text" name="usuario" placeholder="Usuario" required>
+            <label for="usuario">Usuario</label><input id="usuario" type="text" name="usuario" placeholder="Tu usuario" autocomplete="username" required>
             <i class="fa-solid fa-user"></i>
         </div>
         <div class="input-group">
-            <input type="password" name="password" placeholder="Contraseña" required>
+            <label for="password">Contraseña</label><input id="password" type="password" name="password" placeholder="Tu contraseña" autocomplete="current-password" required>
             <i class="fa-solid fa-lock"></i>
         </div>
-        <button type="submit">Entrar</button>
+        <button type="submit">Entrar a mis finanzas →</button>
     </form>
     <p>Finanzas Personales</p>
 </div>

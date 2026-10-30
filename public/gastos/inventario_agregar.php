@@ -38,10 +38,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Agregar Producto</title>
 
     <!-- CSS general -->
-    <link rel="stylesheet" href="../assets/css/estilos.css">
+    <link rel="stylesheet" href="/assets/css/finance-ui.css?v=1">
 
     <!-- CSS exclusivo del formulario -->
     <link rel="stylesheet" href="../assets/css/inventario_agregar.css">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/assets/css/finance-responsive.css?v=1">
+<script src="/assets/js/finance-interface.js?v=1"></script>
+<script src="/assets/js/finance-language.js?v=1"></script>
 </head>
 
 <body>

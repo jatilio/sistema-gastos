@@ -80,10 +80,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <title>Ingresos Mensuales</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="assets/css/ingresos_salario.css?v=2">
+<link rel="stylesheet" href="/assets/css/finance-responsive.css?v=1">
+<script src="/assets/js/finance-interface.js?v=1"></script>
+<script src="/assets/js/finance-language.js?v=1"></script>
 </head>
 
 <body>
-<div class="container">
+<div class="container registrar-ingresos">
     <h1>Registrar Ingresos</h1>
 
 <?php if ($mensaje_exito): ?>

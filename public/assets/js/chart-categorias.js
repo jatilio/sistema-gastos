@@ -29,10 +29,10 @@ new Chart(ctxCat, {
             legend: {
                 display: true,
                 labels: {
-                    font: { size: 11 },
+                    font: { family: '"Segoe UI", Arial, sans-serif', size: 15, weight: '400', lineHeight: 1.5 },
                     usePointStyle: true,
                     pointStyle: "circle",
-                    padding: 10
+                    padding: 16
                 }
             }
         },

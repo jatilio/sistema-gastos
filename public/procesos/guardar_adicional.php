@@ -12,6 +12,17 @@ if (!$usuario_id) {
     exit;
 }
 
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    header('Allow: POST');
+    exit;
+}
+$token = $_POST['adicional_token'] ?? null;
+if (!is_string($token) || !isset($_SESSION['adicional_token']) ||
+    !hash_equals($_SESSION['adicional_token'], $token)) {
+    http_response_code(409);
+    exit('Este formulario ya se guardó o venció. Vuelve a abrir Registrar gastos.');
+}
 $descripciones  = $_POST['descripcion'] ?? [];
 $montos         = $_POST['monto'] ?? [];
 $categorias     = $_POST['categoria'] ?? [];
@@ -73,11 +84,12 @@ try {
     }
 
     $pdo->commit();
+    unset($_SESSION['adicional_token']);
 
     header("Location: ../gastos/adicionales.php?success=1");
     exit;
 
 } catch (Exception $e) {
-    $pdo->rollBack();
+    if ($pdo->inTransaction()) { $pdo->rollBack(); }
     echo "Error al guardar los gastos adicionales: " . $e->getMessage();
 }

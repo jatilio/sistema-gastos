@@ -45,12 +45,12 @@ switch($menu){
 
     case 'dashboard':
         echo '<link rel="stylesheet" href="assets/css/dashboard.css">';
-        echo '<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>';
+        echo '<script src="/assets/js/lib/chart.umd.js"></script>';
         break;
 
     case 'dashboard_prueba':
         // IMPORTANTE: cargar al final para que tenga prioridad
-        echo '<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>';
+        echo '<script src="/assets/js/lib/chart.umd.js"></script>';
         echo '<link rel="stylesheet" href="assets/css/dashboard_prueba.css">';
         break;
 
@@ -72,7 +72,7 @@ switch($menu){
         break;
 
     case 'mantenimiento_pagos':
-        echo '<link rel="stylesheet" href="assets/css/mantenimiento.css">';
+        echo '<link rel="stylesheet" href="assets/css/app/mantenimiento.css">';
         break;
 
     case 'tarjetas':
@@ -81,53 +81,39 @@ switch($menu){
         break;
 }
 ?>
+<link rel="stylesheet" href="/assets/css/finance-ui.css?v=1">
+<link rel="stylesheet" href="/assets/css/finance-responsive.css?v=1">
+<script src="/assets/js/finance-interface.js?v=1"></script>
+<script src="/assets/js/finance-language.js?v=2"></script>
 </head>
 
-<body>
+<body class="finance-app">
+<div class="mobile-navigation"><strong>Finanzas personales</strong><button type="button" id="menu-toggle" aria-expanded="false" aria-controls="main-sidebar">Menú</button></div>
 
 <div class="dashboard">
 
 <!-- ==================== SIDEBAR ==================== -->
-<aside class="sidebar">
-    <h2>💰 Finanzas</h2>
+<aside class="sidebar" id="main-sidebar">
+    <h2>Finanzas<span style="color:#7dd6bd">.</span></h2>
     <p class="saludo">Hola, <strong><?= htmlspecialchars($usuario_nombre) ?></strong></p>
 
-    <nav class="menu-principal">
-        <a href="index.php?menu=dashboard">📊 Dashboard</a>
-        <a href="index.php?menu=dashboard_prueba">📈 Dashboard Prueba</a>
-        <a href="index.php?menu=ingresos_salario">💵 Ingresos Mensuales</a>
-        <a href="index.php?menu=gastos_ingresar">➕ Ingresar gasto</a>
-        <a href="index.php?menu=gastos_cobrados">🧾 Gastos del mes</a>
-        <a href="/gastos/adicionales.php">📝 Gastos Adicionales</a>
-        <a href="top10.php?anio=2026&mes=09">🏆 Top 10 Gastos Adicionales
-        <a href="index.php?menu=reportes">📑 Reportes</a>
-        <a href="index.php?menu=reporte_metodo_pago">💳 Reporte por Método de Pago</a>
-        <a href="index.php?menu=reporte_tarjetas">💳 Reporte de Tarjetas</a>
-        <a href="index.php?menu=mantenimiento_pagos">🛠️ Mantenimiento</a>
-        <a href="index.php?menu=tarjetas">💳 Mis Tarjetas</a>
-        <a href="index.php?menu=tarjetas_gastos">🧾 Gastos de Tarjetas</a>
-        <!-- <a href="inventario_dashboard.php">📊 Dashboard Inventario</a> -->
-
-        <?php $active = basename($_SERVER['PHP_SELF']); ?>
-
-<li class="nav-item has-submenu">
-    <a href="#">Inventario</a>
-    <ul class="submenu">
-<li><a href="gastos/inventario.php">Inventario</a></li>
-<li><a href="gastos/inventario_agregar.php">Agregar Producto</a></li>
-<li><a href="gastos/inventario_dashboard.php">Dashboard Inventario</a></li>
-<li><a href="gastos/inventario_movimientos_lista.php">Movimientos</a></li>
-
-    </ul>
-</li>
-
-
-
-
-
-
-        <hr class="separador">
-        <a href="auth/logout.php" class="cerrar">🚪 Cerrar sesión</a>
+    <nav class="menu-principal" aria-label="Navegación principal">
+    <?php
+    $links = [
+        'Inicio' => ['dashboard'=>'Resumen financiero','dashboard_prueba'=>'Análisis financiero'],
+        'Registrar' => ['ingresos_salario'=>'Ingresos','gastos_ingresar'=>'Pagar gastos fijos'],
+        'Organizar' => ['mantenimiento_pagos'=>'Pagos programados','tarjetas'=>'Mis tarjetas'],
+        'Consultar' => ['reportes'=>'Reportes','reporte_tarjetas'=>'Reporte de tarjetas']
+    ];
+    foreach ($links as $grupo => $opciones): ?>
+        <span class="menu-label"><?= $grupo ?></span>
+        <?php foreach ($opciones as $clave => $etiqueta): ?>
+        <a href="/index.php?menu=<?= $clave ?>" <?= ($menu === $clave || ($clave === 'tarjetas' && $menu === 'editar_tarjeta')) ? 'aria-current="page"' : '' ?>><?= $etiqueta ?></a>
+        <?php endforeach; ?>
+        <?php if ($grupo === 'Registrar'): ?><a href="/gastos/adicionales.php">Registrar gastos</a><?php endif; ?>
+        <?php if ($grupo === 'Consultar'): ?><a href="/top10.php?anio=<?= date('Y') ?>&amp;mes=<?= date('m') ?>">Top 10 de gastos</a><?php endif; ?>
+    <?php endforeach; ?>        <hr class="separador">
+        <a href="auth/logout.php" class="cerrar">Cerrar sesión</a>
     </nav>
 </aside>
 
@@ -217,5 +203,20 @@ elseif($menu==='editar_tarjeta'){
 </main>
 
 </div>
+<script>
+const menuToggle = document.getElementById('menu-toggle');
+menuToggle.addEventListener('click', () => {
+    const open = document.getElementById('main-sidebar').classList.toggle('is-open');
+    menuToggle.setAttribute('aria-expanded', String(open));
+    menuToggle.textContent = open ? 'Cerrar menú' : 'Menú';
+});
+document.querySelectorAll('.menu-principal a').forEach(link => {
+    link.addEventListener('click', () => {
+        if (window.innerWidth > 760) return;
+        document.getElementById('main-sidebar').classList.remove('is-open');
+        menuToggle.setAttribute('aria-expanded', 'false');
+        menuToggle.textContent = 'Menú';
+    });
+});</script>
 </body>
 </html>

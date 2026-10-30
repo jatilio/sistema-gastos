@@ -1,10 +1,12 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
+$_SESSION['adicional_token'] ??= bin2hex(random_bytes(32));
 require_once '../header.php';
 require_once '../../config/db.php';
 ?>
 
 <div class="container mt-4">
-    <h2 class="mb-4">Ingresar Gastos Adicionales</h2>
+    <h2 class="mb-4">Registrar un nuevo gasto</h2>
 
 <a href="/index.php" class="btn btn-secondary mb-3">
     ⬅ Regresar al Inicio
@@ -14,12 +16,13 @@ require_once '../../config/db.php';
     <!-- MENSAJE DE GUARDADO -->
     <?php if (isset($_GET['success']) && $_GET['success'] == 1): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            ✔ Gasto adicional guardado correctamente.
+            ✔ Gasto guardado correctamente.
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     <?php endif; ?>
 
     <form action="../procesos/guardar_adicional.php" method="POST">
+        <input type="hidden" name="adicional_token" value="<?= htmlspecialchars($_SESSION['adicional_token'], ENT_QUOTES, 'UTF-8') ?>">
 
         <!-- CONTENEDOR DE FILAS -->
         <div id="contenedor-filas">
@@ -62,8 +65,12 @@ require_once '../../config/db.php';
                             
                         ];
 
+                        usort($descripciones, static fn($a, $b) => strnatcasecmp(trim($a), trim($b)));
                         foreach ($descripciones as $d) {
-                            echo "<option value='$d'>$d</option>";
+                            $etiqueta = ucfirst(trim($d));
+                            $valorSeguro = htmlspecialchars($d, ENT_QUOTES, 'UTF-8');
+                            $textoSeguro = htmlspecialchars($etiqueta, ENT_QUOTES, 'UTF-8');
+                            echo "<option value=\"$valorSeguro\">$textoSeguro</option>";
                         }
                         ?>
                     </select>
@@ -123,13 +130,13 @@ require_once '../../config/db.php';
 
                 <!-- PAYMENT DATE -->
                 <div class="col-md-2 mt-3">
-                    <label class="form-label">Payment Date</label>
+                    <label class="form-label">Fecha de pago</label>
                     <input type="date" name="payment_date[]" class="form-control" required>
                 </div>
 
                 <!-- ELIMINAR -->
                 <div class="col-md-1 d-flex align-items-end mt-3">
-                    <button type="button" class="btn btn-danger w-100" onclick="eliminarFila(this)">X</button>
+                    <button type="button" class="btn btn-danger w-100" onclick="eliminarFila(this)" aria-label="Quitar esta fila" title="Quitar esta fila">X</button>
                 </div>
 
             </div> <!-- FIN FILA BASE -->
