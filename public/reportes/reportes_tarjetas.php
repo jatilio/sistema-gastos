@@ -28,63 +28,9 @@ $resultado = [];
 
 foreach ($tarjetas as $t) {
 
-    $tarjeta_id = $t['id'];
-    $nombre_tarjeta = $t['nombre_tarjeta'];
-    $saldo_inicial = (float)$t['saldo_actual'];
-
-    // ============================
-    // COMPRAS NUEVAS
-    // ============================
-    $sqlCompras = "
-        SELECT SUM(amount)
-        FROM gastos
-        WHERE usuario_id = :usuario_id
-          AND tarjeta_id = :tarjeta_id
-          AND metodo_pago IN ('credito','debito')
-          AND categoria IN ('Tarjeta','Adicional')
-    ";
-
-    $stmtC = $pdo->prepare($sqlCompras);
-    $stmtC->execute([
-        ':usuario_id' => $usuario_id,
-        ':tarjeta_id' => $tarjeta_id
-    ]);
-
-    $compras = (float)$stmtC->fetchColumn();
-
-    // ============================
-    // PAGOS NUEVOS
-    // ============================
-    $sqlPagos = "
-        SELECT SUM(amount)
-        FROM gastos
-        WHERE usuario_id = :usuario_id
-          AND categoria = 'Tarjeta de crédito'
-          AND pagado = 'Si'
-          AND descripcion LIKE CONCAT('%', :nombre_tarjeta, '%')
-    ";
-
-    $stmtP = $pdo->prepare($sqlPagos);
-    $stmtP->execute([
-        ':usuario_id' => $usuario_id,
-        ':nombre_tarjeta' => $nombre_tarjeta
-    ]);
-
-    $pagos = (float)$stmtP->fetchColumn();
-
-    // ============================
-    // SALDO ACTUAL FINAL
-    // ============================
-    if ($t['tipo'] === 'credito') {
-        $saldo_actual = $saldo_inicial + $compras - $pagos;
-    } else {
-        $saldo_actual = $saldo_inicial + $compras;
-    }
-
-    // ============================
-    // DISPONIBLE
-    // ============================
-    $disponible = (float)$t['limite'] - (float)$saldo_actual;
+    // saldo_actual es el saldo vigente; los movimientos ya lo actualizan una sola vez.
+    $saldo_actual=(float)$t['saldo_actual'];
+    $disponible=(float)$t['limite']-$saldo_actual;
 
     $resultado[] = [
         'banco' => $t['banco'],

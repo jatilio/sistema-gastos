@@ -77,6 +77,7 @@ switch($menu){
 
     case 'tarjetas':
     case 'tarjetas_gastos':
+    case 'editar_gasto_tarjeta':
         echo '<link rel="stylesheet" href="assets/css/tarjetas_gastos.css">';
         break;
 }
@@ -84,7 +85,7 @@ switch($menu){
 <link rel="stylesheet" href="/assets/css/finance-ui.css?v=1">
 <link rel="stylesheet" href="/assets/css/finance-responsive.css?v=1">
 <script src="/assets/js/finance-interface.js?v=1"></script>
-<script src="/assets/js/finance-language.js?v=2"></script>
+<script src="/assets/js/finance-language.js?v=4"></script>
 </head>
 
 <body class="finance-app">
@@ -103,7 +104,7 @@ switch($menu){
         'Inicio' => ['dashboard'=>'Resumen financiero','dashboard_prueba'=>'Análisis financiero'],
         'Registrar' => ['ingresos_salario'=>'Ingresos','gastos_ingresar'=>'Pagar gastos fijos'],
         'Organizar' => ['mantenimiento_pagos'=>'Pagos programados','tarjetas'=>'Mis tarjetas'],
-        'Consultar' => ['reportes'=>'Reportes','reporte_tarjetas'=>'Reporte de tarjetas']
+        'Consultar' => ['historial_movimientos'=>'Historial de movimientos','reportes'=>'Reportes','reporte_tarjetas'=>'Reporte de tarjetas']
     ];
     foreach ($links as $grupo => $opciones): ?>
         <span class="menu-label"><?= $grupo ?></span>
@@ -167,6 +168,10 @@ elseif($menu==='gastos_cobrados'){
 }
 
 // ================= REPORTES =================
+elseif($menu==='historial_movimientos'){
+    require __DIR__.'/historial_movimientos.php';
+}
+
 elseif($menu==='reportes'){
     require_once __DIR__ . "/reportes.php";
 }
@@ -195,6 +200,10 @@ elseif($menu==='tarjetas_gastos'){
 }
 
 // ================= EDITAR TARJETA =================
+elseif($menu==='editar_gasto_tarjeta'){
+    require __DIR__.'/menus/editar_gasto_tarjeta.php';
+}
+
 elseif($menu==='editar_tarjeta'){
     require_once __DIR__ . "/menus/editar_tarjeta.php";
 }

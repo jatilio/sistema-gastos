@@ -15,19 +15,23 @@ if (!isset($_POST['id'])) {
     die("Error: No se recibió el ID del gasto.");
 }
 
-$id               = $_POST['id'];
-$mantenimiento_id = $_POST['mantenimiento_id'];
-$descripcion      = $_POST['descripcion'];
-$amount           = $_POST['amount'];
-$due_date         = $_POST['due_date'];
+$id=filter_var($_POST['id'],FILTER_VALIDATE_INT);
+$consultaPago=$pdo->prepare('SELECT * FROM gastos WHERE id=? AND usuario_id=?');
+$consultaPago->execute([$id,$usuario_id]);$gasto=$consultaPago->fetch(PDO::FETCH_ASSOC);
+if(!$gasto){http_response_code(404);exit('Gasto no encontrado.');}
+if($gasto['pagado']==='Si'){
+    $_SESSION['aviso_pago']='Este gasto ya está pagado. No es necesario registrarlo nuevamente.';
+    header('Location: /gastos/ingresar.php');exit;
+}
+$mantenimiento_id=$gasto['mantenimiento_id'];$descripcion=$gasto['descripcion'];$amount=$gasto['amount'];$due_date=$gasto['due_date'];
 
 /* ============================================================
    TARJETAS DE CRÉDITO (tabla tarjetas)
 ============================================================ */
 
-$sql = "SELECT id, nombre_tarjeta AS nombre, banco 
-        FROM tarjetas 
-        WHERE usuario_id = :usuario_id 
+$sql = "SELECT id, nombre_tarjeta AS nombre, banco
+        FROM tarjetas
+        WHERE usuario_id = :usuario_id AND tipo='credito'
         ORDER BY nombre_tarjeta ASC";
 
 $stmt = $pdo->prepare($sql);
@@ -38,9 +42,9 @@ $tarjetas_credito = $stmt->fetchAll(PDO::FETCH_ASSOC);
    TARJETAS DE DÉBITO (tabla cuentas)
 ============================================================ */
 
-$sql = "SELECT id, nombre AS nombre 
-        FROM cuentas 
-        WHERE usuario_id = :usuario_id 
+$sql = "SELECT id, nombre AS nombre
+        FROM cuentas
+        WHERE usuario_id = :usuario_id
         ORDER BY nombre ASC";
 
 $stmt = $pdo->prepare($sql);
@@ -51,9 +55,9 @@ $tarjetas_debito = $stmt->fetchAll(PDO::FETCH_ASSOC);
    BANCOS (solo existen en tarjetas)
 ============================================================ */
 
-$sql = "SELECT DISTINCT banco 
-        FROM tarjetas 
-        WHERE usuario_id = :usuario_id 
+$sql = "SELECT DISTINCT banco
+        FROM tarjetas
+        WHERE usuario_id = :usuario_id
         ORDER BY banco ASC";
 
 $stmt = $pdo->prepare($sql);
@@ -185,6 +189,9 @@ $bancos = $stmt->fetchAll(PDO::FETCH_COLUMN);
         <?php endforeach; ?>
     </select>
 
+    <?php if(mb_strtolower(trim((string)$gasto['categoria']),'UTF-8')==='tarjeta de crédito'): ?>
+    <label>Tarjeta cuya deuda estás abonando</label><select name="tarjeta_destino_id"><option value="">Detectar por el nombre del pago</option><?php foreach($tarjetas_credito as $t): ?><option value="<?= (int)$t['id'] ?>"><?= htmlspecialchars($t['nombre'],ENT_QUOTES,'UTF-8') ?></option><?php endforeach; ?></select>
+    <?php endif; ?>
     <!-- CONFIRMACIÓN -->
     <label>Número de Confirmación</label>
     <input type="text" name="confirmation" placeholder="Opcional">

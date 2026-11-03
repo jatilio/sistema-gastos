@@ -8,7 +8,9 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require_once __DIR__ . '/../../config/db.php';
 
-$usuario_id = $_SESSION['usuario_id'] ?? null;
+require_once __DIR__.'/../../config/seguridad_formularios.php';
+$usuario_id=exigirSesionFinanzas();
+validarPostFinanzas();
 
 if (!$usuario_id) {
     die("ERROR: No hay sesión activa.");
@@ -21,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 // Recibir datos
 $gasto_id    = $_POST['gasto_id'] ?? null;
 $tarjeta_id  = $_POST['tarjeta_id'] ?? null;
-$descripcion = trim($_POST['descripcion'] ?? '');
+$descripcion = is_string($_POST['descripcion']??null)?trim($_POST['descripcion']):'';
 $monto       = $_POST['monto'] ?? null;
 $fecha       = $_POST['fecha'] ?? null;
 $pagado      = $_POST['pagado'] ?? 'No';
@@ -58,8 +60,12 @@ try {
     }
 
     // 3. LIMPIEZA DE MONTO
+    if(!is_scalar($monto)){http_response_code(422);exit("Monto inválido.");}
     $montoLimpio = preg_replace('/[^\d.\-]/u', '', $monto);
     $montoFinal = ($montoLimpio === '' ? 0 : (float)$montoLimpio);
+
+    if(!is_string($pagado)||!in_array($pagado,['Si','No'],true)||!is_string($fecha)||!($fechaObjeto=DateTimeImmutable::createFromFormat('!Y-m-d',$fecha))||$fechaObjeto->format('Y-m-d')!==$fecha||!is_scalar($monto)||!is_numeric($monto)||$montoFinal<=0||$montoFinal>99999999.99||mb_strlen($descripcion)>150){http_response_code(422);exit('Revisa el monto, la descripción y la fecha.');}
+    $consultaGasto=$pdo->prepare('SELECT id FROM gastos WHERE id=? AND usuario_id=? AND tarjeta_id IS NOT NULL');$consultaGasto->execute([$gasto_id,$usuario_id]);if(!$consultaGasto->fetchColumn()){http_response_code(404);exit('Gasto no encontrado.');}
 
     // 4. ACTUALIZAR GASTO DE TARJETA
     $sql = "UPDATE gastos SET
@@ -71,7 +77,7 @@ try {
                 metodo_pago    = :metodo_pago,
                 categoria      = 'Tarjeta',
                 tipo           = 'Adicional'
-            WHERE id = :gasto_id AND usuario_id = :usuario_id";
+            WHERE id = :gasto_id AND usuario_id = :usuario_id AND tarjeta_id IS NOT NULL";
 
     $stmt = $pdo->prepare($sql);
 
@@ -91,11 +97,6 @@ try {
 
 } catch (PDOException $e) {
 
-    file_put_contents(
-        __DIR__ . "/error_gasto_tarjeta.txt",
-        date('Y-m-d H:i:s') . " ERROR SQL:\n" . $e->getMessage() . "\n\n",
-        FILE_APPEND
-    );
-
-    die("ERROR SQL: " . $e->getMessage());
+    error_log('Edición gasto tarjeta: '.$e->getMessage());
+    http_response_code(422);exit('No se pudo guardar el gasto. Revisa los datos.');
 }

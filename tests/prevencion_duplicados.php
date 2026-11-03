@@ -5,6 +5,7 @@ ob_start();
 session_start();
 require dirname(__DIR__) . '/config/db.php';
 require_once dirname(__DIR__) . '/config/pagos_programados.php';
+require_once dirname(__DIR__) . '/config/saldos_finanzas.php';
 final class FinDeSolicitud extends Error {}
 function comprobar(bool $ok, string $message): void {
     if (!$ok) { throw new RuntimeException($message); }
@@ -15,6 +16,7 @@ function ejecutar(PDO $pdo, string $archivo): int {
     $source = preg_replace('/^<\?php\s*/', '', $source);
     $source = str_replace("require_once dirname(__DIR__, 2) . '/config/db.php';", '', $source);
     $source = str_replace("require_once dirname(__DIR__, 2) . '/config/pagos_programados.php';", '', $source);
+    $source = str_replace("require_once dirname(__DIR__, 2) . '/config/saldos_finanzas.php';", '', $source);
     $source = preg_replace('/\bexit\s*(\([^;]*\))?\s*;/', 'throw new FinDeSolicitud();', $source);
     try { eval($source); } catch (FinDeSolicitud $e) {}
     return http_response_code();
@@ -23,7 +25,7 @@ function cantidad(PDO $pdo): int {
     return (int)$pdo->query('SELECT COUNT(*) FROM gastos')->fetchColumn();
 }
 $pdo->exec('CREATE TEMPORARY TABLE mantenimiento_pagos (id INT PRIMARY KEY, usuario_id INT, activo INT, frecuencia VARCHAR(10), due_date DATE, descripcion VARCHAR(80), categoria VARCHAR(80), amount DECIMAL(10,2)) ENGINE=InnoDB');
-$pdo->exec("CREATE TEMPORARY TABLE gastos (id INT AUTO_INCREMENT PRIMARY KEY, usuario_id INT, mantenimiento_id INT, descripcion VARCHAR(150), categoria VARCHAR(80), due_date DATE, payment_date DATE, amount DECIMAL(10,2) CHECK (amount >= 0), pagado VARCHAR(5), tipo VARCHAR(20), metodo_pago VARCHAR(30), banco_pago VARCHAR(100), notes TEXT) ENGINE=InnoDB");
+$pdo->exec("CREATE TEMPORARY TABLE gastos (id INT AUTO_INCREMENT PRIMARY KEY, usuario_id INT, tarjeta_id INT, mantenimiento_id INT, descripcion VARCHAR(150), categoria VARCHAR(80), due_date DATE, payment_date DATE, amount DECIMAL(10,2) CHECK (amount >= 0), pagado VARCHAR(5), tipo VARCHAR(20), metodo_pago VARCHAR(30), banco_pago VARCHAR(100), notes TEXT) ENGINE=InnoDB");
 $pdo->exec("INSERT INTO mantenimiento_pagos VALUES (1,1,1,'M','2026-01-31','Prueba','Otros',10),(2,1,1,'M','2026-01-15','Prueba 2','Otros',20),(3,2,1,'M','2026-01-15','Otro usuario','Otros',30)");
 $_SESSION = ['usuario_id'=>1, 'generar_pagos_token'=>'token-prueba'];
 $_SERVER['REQUEST_METHOD']='POST';

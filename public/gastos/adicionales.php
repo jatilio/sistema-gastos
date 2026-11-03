@@ -3,6 +3,8 @@ if (session_status() === PHP_SESSION_NONE) { session_start(); }
 $_SESSION['adicional_token'] ??= bin2hex(random_bytes(32));
 require_once '../header.php';
 require_once '../../config/db.php';
+$opcionesMedios=$pdo->prepare("SELECT nombre AS nombre FROM cuentas WHERE usuario_id=? AND tipo='DEBITO' UNION SELECT nombre_tarjeta AS nombre FROM tarjetas WHERE usuario_id=? AND tipo='credito' AND estado='activa' ORDER BY nombre");
+$opcionesMedios->execute([$_SESSION['usuario_id'],$_SESSION['usuario_id']]);$nombresMedios=$opcionesMedios->fetchAll(PDO::FETCH_COLUMN);
 ?>
 
 <div class="container mt-4">
@@ -119,12 +121,7 @@ require_once '../../config/db.php';
                     <label class="form-label">Banco</label>
                     <select name="banco_pago[]" class="form-select">
                         <option value="">Seleccione</option>
-                        <option value="Bank Of America">Bank Of America</option>
-                        <option value="MidFlorida">MidFlorida</option>
-                        <option value="Chase">Chase</option>
-                        <option value="Universal-Visa">Universal-Visa</option>
-                        <option value="Disney">Disney</option>
-                        <option value="Otro">Otro</option>
+                        <?php foreach($nombresMedios as $nombreMedio): ?><option value="<?= htmlspecialchars($nombreMedio,ENT_QUOTES,'UTF-8') ?>"><?= htmlspecialchars($nombreMedio,ENT_QUOTES,'UTF-8') ?></option><?php endforeach; ?>
                     </select>
                 </div>
 

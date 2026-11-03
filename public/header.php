@@ -18,7 +18,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <link rel="stylesheet" href="/assets/css/finance-ui.css?v=1">
 <link rel="stylesheet" href="/assets/css/finance-responsive.css?v=1">
 <script src="/assets/js/finance-interface.js?v=1"></script>
-<script src="/assets/js/finance-language.js?v=2"></script>
+<script src="/assets/js/finance-language.js?v=4"></script>
 </head>
 
 <body class="finance-standalone">

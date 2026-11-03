@@ -1,6 +1,6 @@
 const ctxCat = document.getElementById("chartCategorias");
 
-new Chart(ctxCat, {
+if (ctxCat && typeof Chart !== "undefined" && labelsCategorias.length) new Chart(ctxCat, {
     type: "doughnut",
     data: {
         labels: labelsCategorias,

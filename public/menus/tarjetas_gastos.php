@@ -1,6 +1,9 @@
 <?php
 echo '<link rel="stylesheet" href="assets/css/tarjetas_gastos.css">';
 require_once __DIR__ . '/../../config/db.php';
+require_once __DIR__.'/../../config/seguridad_formularios.php';
+exigirSesionFinanzas();
+$tokenTarjetas=htmlspecialchars(tokenFormularioFinanzas(),ENT_QUOTES,'UTF-8');
 
 // Obtener tarjetas del usuario
 $stmt = $pdo->prepare("SELECT id, banco, nombre_tarjeta FROM tarjetas WHERE usuario_id = ?");
@@ -38,6 +41,7 @@ $gastos = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
     <form method="POST" action="procesos/guardar_gasto_tarjeta.php" class="form-tarjeta-gasto">
 
+        <input type="hidden" name="formulario_token" value="<?= $tokenTarjetas ?>">
         <div class="form-grid">
 
             <div class="form-group">
@@ -109,7 +113,7 @@ $gastos = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
                         <td class="acciones">
                             <a href="index.php?menu=editar_gasto_tarjeta&id=<?= $g['id'] ?>" class="btn-editar">Editar</a>
-                            <a href="procesos/eliminar_gasto_tarjeta.php?id=<?= $g['id'] ?>" class="btn-eliminar" onclick="return confirm('¿Eliminar este gasto?')">Eliminar</a>
+                            <form method="post" action="/procesos/eliminar_gasto_tarjeta.php" onsubmit="return confirm('¿Eliminar este gasto?')" style="display:inline"><input type="hidden" name="id" value="<?= (int)$g['id'] ?>"><input type="hidden" name="formulario_token" value="<?= $tokenTarjetas ?>"><button type="submit" class="btn-eliminar">Eliminar</button></form>
                         </td>
                     </tr>
                 <?php endforeach; ?>

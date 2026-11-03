@@ -58,7 +58,7 @@ $tarjetas = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
 
             <div class="form-group">
-                <label>Saldo inicial</label>
+                <label>Deuda actual al registrar</label>
                 <input type="number" step="0.01" name="saldo_actual" id="saldo_actual" value="0.00">
             </div>
 

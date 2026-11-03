@@ -149,9 +149,14 @@ Gasto guardado correctamente.|Expense saved successfully.
 Registrar gasto|Record expense
 Ingreso del mes|Monthly income
 Gastado (Fijo + Adicional)|Spent (Fixed + Additional)
-Saldo disponible|Available balance
+Saldo disponible|Available Balance
 Pendientes por pagar|Pending payments
 Próximos pagos (10 días)|Upcoming payments (10 days)
+Próximos pagos (7 días)|Upcoming Payments (7 Days)
+No tienes pagos pendientes que venzan en los próximos 7 días.|You have no pending payments due in the next 7 days.
+Vence hoy|Due today
+Ver pago pendiente|View pending payment
+Ver pago programado|View scheduled payment
 No hay pagos próximos.|No upcoming payments.
 Pagos vencidos|Overdue payments
 No hay pagos vencidos.|No overdue payments.
@@ -388,8 +393,9 @@ Dic|Dec
   const exact = dictionary.get(value) || normalized.get(value.toLocaleLowerCase('es'));
   if (exact) return spaces[1]+exact+spaces[3];
   // Frases variables: fechas, importes y decoración conservan sus valores.
-  const phrases=[['Acumulado','Year to date'],['Indicadores de','Figures for'],['Gastos pagados con débito','Expenses paid by debit'],['Fijos por vencimiento y adicionales por fecha de pago.','Fixed expenses by due date and additional expenses by payment date.'],['Enero a','January to'],['Incluye pagos adelantados','Includes advance payments'],['Pagos adelantados','Advance payments'],['Pagados antes del cierre de','Paid before the end of'],['con vencimiento en meses posteriores. Se muestran en su mes de vencimiento.','due in later months. Shown in their due month.'],['Gastos vs','Expenses vs'],['Gastaste','You spent'],['menos.','less.'],['más.','more.'],['del total','of total'],['Solo meses con registros','Only months with records'],['Pagos con débito','Debit payments'],['se aplicará al mes','will apply to'],['ya generado','already generated'],['vence el','due on'],['venció el','was due on'],['Hola,','Hello,'],['Quincena','Pay period']];
+  const phrases=[['Desde hoy hasta','From today through'],['pago(s)','payment(s)'],['día(s)','day(s)'],['Acumulado','Year to date'],['Indicadores de','Figures for'],['Gastos pagados con débito','Expenses paid by debit'],['Fijos por vencimiento y adicionales por fecha de pago.','Fixed expenses by due date and additional expenses by payment date.'],['Enero a','January to'],['Incluye pagos adelantados','Includes advance payments'],['Pagos adelantados','Advance payments'],['Pagados antes del cierre de','Paid before the end of'],['con vencimiento en meses posteriores. Se muestran en su mes de vencimiento.','due in later months. Shown in their due month.'],['Gastos vs','Expenses vs'],['Gastaste','You spent'],['menos.','less.'],['más.','more.'],['del total','of total'],['Solo meses con registros','Only months with records'],['Pagos con débito','Debit payments'],['se aplicará al mes','will apply to'],['ya generado','already generated'],['vence el','due on'],['venció el','was due on'],['Hola,','Hello,'],['Quincena','Pay period']];
   for (const [from,to] of phrases) value=value.replace(new RegExp(from.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'giu'),to);
+  value=value.replace(/\bEn\s+(\d+)\s+day\(s\)/giu,'In $1 day(s)');
   const entries=Array.from(dictionary).sort((a,b)=>b[0].length-a[0].length);
   for (const [from,to] of entries) {
    const escaped=from.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
@@ -420,7 +426,7 @@ Dic|Dec
    if(acronyms.has(upper)) {first=false;return upper;}
    if(word==='MidFlorida' || word==='RaceTrac' || word==='HeyDude' || word==='PeruFresh') {first=false;return word;}
    const lower=word.toLocaleLowerCase(language==='en'?'en':'es');
-   const capitalize=first || !!paymentName || (name && !heading && !smallWords.has(lower));
+   const capitalize=first || !!paymentName || ((name && !heading || heading && language==='en') && !smallWords.has(lower));
    first=false;
    return capitalize ? lower.charAt(0).toUpperCase()+lower.slice(1) : lower;
   });

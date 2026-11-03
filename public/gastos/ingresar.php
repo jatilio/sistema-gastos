@@ -117,6 +117,7 @@ $tarjetas = $stmtTar->fetchAll(PDO::FETCH_ASSOC);
     ← Regresar al Inicio
 </a>
 
+<?php if(isset($_SESSION['aviso_pago'])): ?><p role="status" style="padding:14px;border:1px solid #91badd;border-radius:8px;background:#edf6ff;color:#17496f"><?= htmlspecialchars($_SESSION['aviso_pago'],ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></p><?php unset($_SESSION['aviso_pago']);endif; ?>
 <h2>Ingresar Gastos</h2>
 
 <form method="GET" action="/gastos/ingresar.php"

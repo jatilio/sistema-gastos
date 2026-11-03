@@ -201,21 +201,9 @@ foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $filaGrafico) {
 }
 // 6. CUENTAS VINCULADAS (SALDO DISPONIBLE POR BANCO / TARJETA)
 
-$stmt = $pdo->prepare("
-    SELECT 
-        banco,
-        disponible,
-        tipo_cuenta
-    FROM vista_totales_banco_globales
-    ORDER BY tipo_cuenta, banco
-");
-$stmt->execute();
-$cuentas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+require_once __DIR__.'/../../config/saldos_finanzas.php';
+$cuentas=cuentasVinculadasFinanzas($pdo,(int)$usuario_id);
 
-
-
-
-// ===============================
 // 7. TRANSACCIONES RECIENTES
 // ===============================
 
@@ -341,56 +329,181 @@ $distribucionAnalisis = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <link rel="stylesheet" href="/assets/css/analysis-premium.css?v=1">
 <div class="dashboard-wrapper analysis-premium">
-    <header class="analysis-heading"><div><span class="analysis-kicker">TUS FINANZAS, EN PERSPECTIVA</span><h1>Análisis financiero</h1><p>Entiende tus gastos y planifica los próximos meses.</p></div><span class="analysis-period"><?= htmlspecialchars($periodoAnalisis) ?></span></header>
+    <header class="analysis-heading">
+        <div><span class="analysis-kicker">TUS FINANZAS, EN PERSPECTIVA</span>
+            <h1>Análisis financiero</h1>
+            <p>Entiende tus gastos y planifica los próximos meses.</p>
+        </div><span class="analysis-period"><?= htmlspecialchars($periodoAnalisis) ?></span>
+    </header>
     <form method="GET" action="index.php" class="analysis-filters">
         <input type="hidden" name="menu" value="dashboard_prueba">
-        <label>Mes<select name="mes"><option value="0" <?= !$mes ? 'selected' : '' ?>>Todos los meses</option><?php foreach ($nombresAnalisis as $i => $nombre): ?><option value="<?= $i + 1 ?>" <?= $mes === $i + 1 ? 'selected' : '' ?>><?= $nombre ?></option><?php endforeach; ?></select></label>
-        <label>Año<select name="anio"><?php for ($y = (int)date('Y') - 3; $y <= (int)date('Y') + 1; $y++): ?><option <?= $y === $anio ? 'selected' : '' ?>><?= $y ?></option><?php endfor; ?></select></label>
-        <label>Banco<select name="banco"><?php foreach ([''=>'Todos','MIDFLORIDA'=>'MidFlorida','BANK OF AMERICA'=>'Bank of America'] as $valor => $nombre): ?><option value="<?= $valor ?>" <?= $banco === $valor ? 'selected' : '' ?>><?= $nombre ?></option><?php endforeach; ?></select></label>
+        <label>Mes<select name="mes">
+                <option value="0" <?= !$mes ? 'selected' : '' ?>>Todos los meses</option>
+                <?php foreach ($nombresAnalisis as $i => $nombre): ?><option value="<?= $i + 1 ?>"
+                    <?= $mes === $i + 1 ? 'selected' : '' ?>><?= $nombre ?></option><?php endforeach; ?>
+            </select></label>
+        <label>Año<select name="anio"><?php for ($y = (int)date('Y') - 3; $y <= (int)date('Y') + 1; $y++): ?><option
+                    <?= $y === $anio ? 'selected' : '' ?>><?= $y ?></option><?php endfor; ?></select></label>
+        <label>Banco<select
+                name="banco"><?php foreach ([''=>'Todos','MIDFLORIDA'=>'MidFlorida','BANK OF AMERICA'=>'Bank of America'] as $valor => $nombre): ?>
+                <option value="<?= $valor ?>" <?= $banco === $valor ? 'selected' : '' ?>><?= $nombre ?></option>
+                <?php endforeach; ?>
+            </select></label>
         <button type="submit">Aplicar filtros</button>
     </form>
-    <p class="analysis-scope">Indicadores de <?= htmlspecialchars(mb_strtolower($periodoAnalisis)) ?> · Gastos pagados con débito · Fijos por vencimiento y adicionales por fecha de pago.</p>
+    <p class="analysis-scope">Indicadores de <?= htmlspecialchars(mb_strtolower($periodoAnalisis)) ?> · Gastos pagados
+        con débito · Fijos por vencimiento y adicionales por fecha de pago.</p>
     <div class="analysis-kpis">
-        <section class="analysis-kpi"><span class="analysis-icon income">↗</span><div><h2>Ingresos</h2><strong class="analysis-value">$<?= number_format($ingresos_mes,2) ?></strong><span class="analysis-caption">En el período seleccionado</span></div></section>
-        <section class="analysis-kpi"><span class="analysis-icon expense">↘</span><div><h2>Gastos pagados</h2><strong class="analysis-value">$<?= number_format($gastos_mes,2) ?></strong><dl class="analysis-breakdown"><div><dt>Fijos</dt><dd>$<?= number_format($desgloseAnalisis['Fijo'],2) ?></dd></div><div><dt>Adicionales</dt><dd>$<?= number_format($desgloseAnalisis['Adicional'],2) ?></dd></div></dl></div></section>
-        <section class="analysis-kpi"><span class="analysis-icon balance">$</span><div><h2>Saldo disponible</h2><strong class="analysis-value <?= $balance_total < 0 ? 'negative' : '' ?>">$<?= number_format($balance_total,2) ?></strong><span class="analysis-caption">Ingresos menos gastos del período</span></div></section>
-        <section class="analysis-kpi"><span class="analysis-icon saving">▥</span><div><h2><?= $mes ? 'Ahorro del mes' : 'Ahorro del período' ?></h2><strong class="analysis-value <?= $balance_total < 0 ? 'negative' : '' ?>"><?= $ahorroAnalisis === null ? '—' : number_format($ahorroAnalisis,1) . '%' ?></strong><span class="analysis-caption"><?= $ahorroAnalisis === null ? 'Sin ingresos para calcular el porcentaje' : 'Porcentaje de ingresos disponible' ?></span></div></section>
+        <section class="analysis-kpi"><span class="analysis-icon income">↗</span>
+            <div>
+                <h2>Ingresos</h2><strong class="analysis-value">$<?= number_format($ingresos_mes,2) ?></strong><span
+                    class="analysis-caption">En el período seleccionado</span>
+            </div>
+        </section>
+        <section class="analysis-kpi"><span class="analysis-icon expense">↘</span>
+            <div>
+                <h2>Gastos pagados</h2><strong class="analysis-value">$<?= number_format($gastos_mes,2) ?></strong>
+                <dl class="analysis-breakdown">
+                    <div>
+                        <dt>Fijos</dt>
+                        <dd>$<?= number_format($desgloseAnalisis['Fijo'],2) ?></dd>
+                    </div>
+                    <div>
+                        <dt>Adicionales</dt>
+                        <dd>$<?= number_format($desgloseAnalisis['Adicional'],2) ?></dd>
+                    </div>
+                </dl>
+            </div>
+        </section>
+        <section class="analysis-kpi"><span class="analysis-icon balance">$</span>
+            <div>
+                <h2>Saldo disponible</h2><strong
+                    class="analysis-value <?= $balance_total < 0 ? 'negative' : '' ?>">$<?= number_format($balance_total,2) ?></strong><span
+                    class="analysis-caption">Ingresos menos gastos del período</span>
+            </div>
+        </section>
+        <section class="analysis-kpi"><span class="analysis-icon saving">▥</span>
+            <div>
+                <h2><?= $mes ? 'Ahorro del mes' : 'Ahorro del período' ?></h2><strong
+                    class="analysis-value <?= $balance_total < 0 ? 'negative' : '' ?>"><?= $ahorroAnalisis === null ? '—' : number_format($ahorroAnalisis,1) . '%' ?></strong><span
+                    class="analysis-caption"><?= $ahorroAnalisis === null ? 'Sin ingresos para calcular el porcentaje' : 'Porcentaje de ingresos disponible' ?></span>
+            </div>
+        </section>
     </div>
-    <section class="analysis-panel analysis-line"><div class="analysis-panel-heading"><div><h2>Ingresos vs gastos por mes</h2><p>Enero a <?= $nombresMesGrafico[$mesGrafico - 1] ?> de <?= $anioGrafico ?> · Incluye pagos adelantados</p></div></div><div class="analysis-canvas"><canvas id="chartIngresosGastos" aria-label="Ingresos y gastos mensuales" role="img"></canvas></div></section>
-    <aside class="analysis-advances"><span class="analysis-icon balance">▣</span><div><strong>Pagos adelantados: $<?= number_format($totalAdelantos,2) ?></strong><p>Pagados antes del cierre de <?= $nombresAnalisis[$mesReferencia - 1] ?> <?= $anio ?>, con vencimiento en meses posteriores. Se muestran en su mes de vencimiento.</p><?php if ($adelantosAnalisis): ?><div class="analysis-advance-months"><?php foreach ($adelantosAnalisis as $adelanto): ?><span><?= $nombresAnalisis[(int)substr($adelanto['periodo'],5,2)-1] ?> <?= substr($adelanto['periodo'],0,4) ?>: $<?= number_format($adelanto['total'],2) ?></span><?php endforeach; ?></div><?php endif; ?></div></aside>
+    <section class="analysis-panel analysis-line">
+        <div class="analysis-panel-heading">
+            <div>
+                <h2>Ingresos vs gastos por mes</h2>
+                <p>Enero a <?= $nombresMesGrafico[$mesGrafico - 1] ?> de <?= $anioGrafico ?> · Incluye pagos adelantados
+                </p>
+            </div>
+        </div>
+        <div class="analysis-canvas"><canvas id="chartIngresosGastos" aria-label="Ingresos y gastos mensuales"
+                role="img"></canvas></div>
+    </section>
+    <aside class="analysis-advances"><span class="analysis-icon balance">▣</span>
+        <div><strong>Pagos adelantados: $<?= number_format($totalAdelantos,2) ?></strong>
+            <p>Pagados antes del cierre de <?= $nombresAnalisis[$mesReferencia - 1] ?> <?= $anio ?>, con vencimiento en
+                meses posteriores. Se muestran en su mes de vencimiento.</p><?php if ($adelantosAnalisis): ?><div
+                class="analysis-advance-months">
+                <?php foreach ($adelantosAnalisis as $adelanto): ?><span><?= $nombresAnalisis[(int)substr($adelanto['periodo'],5,2)-1] ?>
+                    <?= substr($adelanto['periodo'],0,4) ?>:
+                    $<?= number_format($adelanto['total'],2) ?></span><?php endforeach; ?></div><?php endif; ?>
+        </div>
+    </aside>
     <div class="analysis-insights">
-        <section class="analysis-panel"><h2><?= $mes ? 'Comparación mensual' : 'Comparación anual' ?></h2><p class="analysis-muted">Gastos vs <?= htmlspecialchars($etiquetaAnterior) ?></p><?php if (!$anteriorAnalisis['cantidad']): ?><p class="analysis-empty">No hay registros del período anterior para comparar.</p><?php else: ?><div class="analysis-comparison <?= $diferenciaAnalisis <= 0 ? 'favorable' : 'unfavorable' ?>"><strong><?= $variacionAnalisis === null ? '—' : ($variacionAnalisis > 0 ? '+' : '') . number_format($variacionAnalisis,1) . '%' ?></strong><p><?= $diferenciaAnalisis == 0 ? 'El gasto se mantuvo igual.' : 'Gastaste $' . number_format(abs($diferenciaAnalisis),2) . ($diferenciaAnalisis < 0 ? ' menos.' : ' más.') ?></p></div><?php endif; ?></section>
-        <section class="analysis-panel"><h2>Distribución por categoría</h2><p class="analysis-muted">Participación en los gastos del período. Sin límites de presupuesto definidos.</p><?php if (!$distribucionAnalisis): ?><p class="analysis-empty">No hay gastos en este período.</p><?php else: ?><?php foreach (array_slice($distribucionAnalisis,0,5) as $categoria): $porcentaje = $gastos_mes > 0 ? max(0,min(100,(float)$categoria['total']/$gastos_mes*100)) : 0; ?><div class="analysis-category"><div><span><?= htmlspecialchars($categoria['categoria']) ?></span><strong>$<?= number_format($categoria['total'],2) ?></strong></div><progress max="100" value="<?= $porcentaje ?>" aria-label="<?= htmlspecialchars($categoria['categoria'],ENT_QUOTES) ?>"></progress><small><?= number_format($porcentaje,1) ?>% del total</small></div><?php endforeach; ?><?php endif; ?></section>
+        <section class="analysis-panel">
+            <h2><?= $mes ? 'Comparación mensual' : 'Comparación anual' ?></h2>
+            <p class="analysis-muted">Gastos vs <?= htmlspecialchars($etiquetaAnterior) ?></p>
+            <?php if (!$anteriorAnalisis['cantidad']): ?><p class="analysis-empty">No hay registros del período anterior
+                para comparar.</p><?php else: ?><div
+                class="analysis-comparison <?= $diferenciaAnalisis <= 0 ? 'favorable' : 'unfavorable' ?>">
+                <strong><?= $variacionAnalisis === null ? '—' : ($variacionAnalisis > 0 ? '+' : '') . number_format($variacionAnalisis,1) . '%' ?></strong>
+                <p><?= $diferenciaAnalisis == 0 ? 'El gasto se mantuvo igual.' : 'Gastaste $' . number_format(abs($diferenciaAnalisis),2) . ($diferenciaAnalisis < 0 ? ' menos.' : ' más.') ?>
+                </p>
+            </div><?php endif; ?>
+        </section>
+        <section class="analysis-panel">
+            <h2>Distribución por categoría</h2>
+            <p class="analysis-muted">Participación en los gastos del período. Sin límites de presupuesto definidos.</p>
+            <?php if (!$distribucionAnalisis): ?><p class="analysis-empty">No hay gastos en este período.</p>
+            <?php else: ?><?php foreach (array_slice($distribucionAnalisis,0,5) as $categoria): $porcentaje = $gastos_mes > 0 ? max(0,min(100,(float)$categoria['total']/$gastos_mes*100)) : 0; ?>
+            <div class="analysis-category">
+                <div>
+                    <span><?= htmlspecialchars($categoria['categoria']) ?></span><strong>$<?= number_format($categoria['total'],2) ?></strong>
+                </div><progress max="100" value="<?= $porcentaje ?>"
+                    aria-label="<?= htmlspecialchars($categoria['categoria'],ENT_QUOTES) ?>"></progress><small><?= number_format($porcentaje,1) ?>%
+                    del total</small>
+            </div><?php endforeach; ?><?php endif; ?>
+        </section>
     </div>
-    <section class="analysis-panel analysis-bars"><div class="analysis-panel-heading"><div><h2>Gastos adicionales mensuales</h2><p><?= $anioGrafico ?> · Solo meses con registros · Pagos con débito</p></div></div><div class="analysis-canvas"><canvas id="chartAdicionales" aria-label="Gastos adicionales por mes" role="img"></canvas></div></section>
+    <section class="analysis-panel analysis-bars">
+        <div class="analysis-panel-heading">
+            <div>
+                <h2>Gastos adicionales mensuales</h2>
+                <p><?= $anioGrafico ?> · Solo meses con registros · Pagos con débito</p>
+            </div>
+        </div>
+        <div class="analysis-canvas"><canvas id="chartAdicionales" aria-label="Gastos adicionales por mes"
+                role="img"></canvas></div>
+    </section>
     <div class="analysis-support">
-        <section class="analysis-panel"><h2>Cuentas vinculadas · Disponible</h2><p class="analysis-muted">Saldos actuales de tus cuentas.</p><?php foreach ($cuentas as $cuenta): ?><div class="analysis-list-row"><span><?= htmlspecialchars($cuenta['banco'] ?? '') ?></span><strong>$<?= number_format((float)$cuenta['disponible'],2) ?></strong></div><?php endforeach; ?></section>
-        <section class="analysis-panel"><h2>Transacciones recientes</h2><p class="analysis-muted">Últimos movimientos, independientemente del período.</p><?php foreach ($transacciones as $movimiento): ?><div class="analysis-list-row"><div><span><?= htmlspecialchars($movimiento['descripcion'] ?? $movimiento['nombre'] ?? 'Movimiento') ?></span><small><?= !empty($movimiento['fecha']) ? date('d/m/Y', strtotime($movimiento['fecha'])) : 'Sin fecha' ?></small></div><strong class="<?= ($movimiento['tipo'] ?? 'gasto') === 'ingreso' ? 'analysis-incoming' : 'analysis-outgoing' ?>"><?= ($movimiento['tipo'] ?? 'gasto') === 'ingreso' ? '+' : '−' ?>$<?= number_format((float)($movimiento['monto'] ?? $movimiento['amount'] ?? 0),2) ?></strong></div><?php endforeach; ?></section>
-        <section class="analysis-panel"><h2>Próximos pagos</h2><?php if (!$proximos_pagos): ?><p class="analysis-empty">No hay pagos próximos.</p><?php else: ?><?php foreach ($proximos_pagos as $pago): ?><div class="analysis-list-row"><div><span><?= htmlspecialchars($pago['nombre']) ?></span><small><?= date('d/m/Y',strtotime($pago['fecha'])) ?></small></div><strong>$<?= number_format($pago['amount'],2) ?></strong></div><?php endforeach; ?><?php endif; ?></section>
-        <section class="analysis-panel analysis-category-chart"><h2>Gastos adicionales por categoría</h2><div class="analysis-canvas"><canvas id="chartCategorias" role="img" aria-label="Distribución de gastos adicionales"></canvas></div></section>
+        <section class="analysis-panel">
+            <h2>Cuentas vinculadas · Disponible</h2>
+            <p class="analysis-muted">Saldos actuales de tus cuentas.</p><?php foreach ($cuentas as $cuenta): ?><div
+                class="analysis-list-row">
+                <span><?= htmlspecialchars($cuenta['banco'] ?? '') ?></span><strong>$<?= number_format((float)$cuenta['disponible'],2) ?></strong>
+            </div><?php endforeach; ?>
+        </section>
+        <section class="analysis-panel">
+            <h2>Transacciones recientes</h2>
+            <p class="analysis-muted">Últimos movimientos, independientemente del período.</p>
+            <?php foreach ($transacciones as $movimiento): ?><div class="analysis-list-row">
+                <div>
+                    <span><?= htmlspecialchars($movimiento['descripcion'] ?? $movimiento['nombre'] ?? 'Movimiento') ?></span><small><?= !empty($movimiento['fecha']) ? date('d/m/Y', strtotime($movimiento['fecha'])) : 'Sin fecha' ?></small>
+                </div><strong
+                    class="<?= ($movimiento['tipo'] ?? 'gasto') === 'ingreso' ? 'analysis-incoming' : 'analysis-outgoing' ?>"><?= ($movimiento['tipo'] ?? 'gasto') === 'ingreso' ? '+' : '−' ?>$<?= number_format((float)($movimiento['monto'] ?? $movimiento['amount'] ?? 0),2) ?></strong>
+            </div><?php endforeach; ?>
+        </section>
+        <section class="analysis-panel">
+            <h2>Próximos pagos</h2><?php if (!$proximos_pagos): ?><p class="analysis-empty">No hay pagos próximos.</p>
+            <?php else: ?><?php foreach ($proximos_pagos as $pago): ?><div class="analysis-list-row">
+                <div>
+                    <span><?= htmlspecialchars($pago['nombre']) ?></span><small><?= date('d/m/Y',strtotime($pago['fecha'])) ?></small>
+                </div><strong>$<?= number_format($pago['amount'],2) ?></strong>
+            </div><?php endforeach; ?><?php endif; ?>
+        </section>
+        <section class="analysis-panel analysis-category-chart">
+            <h2>Gastos adicionales por categoría</h2>
+            <p class="analysis-muted">Gastos adicionales pagados con débito, según la fecha de pago.</p>
+            <?php if(!$categorias_gastos): ?><p class="analysis-empty" role="status">No hay gastos adicionales pagados
+                con débito
+                <?= $mes?'en '.htmlspecialchars($nombresMesGrafico[$mes-1].' '.$anio,ENT_QUOTES,'UTF-8'):'en el año '.$anio ?><?= $banco!==''?' para '.htmlspecialchars($banco,ENT_QUOTES,'UTF-8'):'' ?>.
+                Revisa el período y el banco seleccionados.</p><?php else: ?><div class="analysis-canvas"><canvas
+                    id="chartCategorias" role="img" aria-label="Distribución de gastos adicionales"></canvas></div>
+            <?php endif; ?>
+        </section>
     </div>
 </div>
 <!-- 1. Variables PHP convertidas a JS -->
 <script>
-    const labelsCategorias = <?= json_encode($labels_cat) ?>;
-    const totalesCategorias = <?= json_encode($totales_cat) ?>;
+const labelsCategorias = <?= json_encode($labels_cat) ?>;
+const totalesCategorias = <?= json_encode($totales_cat) ?>;
 
-    const labelsLine = <?= json_encode($labels) ?>;
-    const dataIngresos = <?= json_encode($data_ing) ?>;
-    const dataGastos = <?= json_encode($data_gas) ?>;
+const labelsLine = <?= json_encode($labels) ?>;
+const dataIngresos = <?= json_encode($data_ing) ?>;
+const dataGastos = <?= json_encode($data_gas) ?>;
 
-    const labelsAdic = <?= json_encode($labels_adic) ?>;
-    const totalesAdic = <?= json_encode($totales_adic) ?>;
+const labelsAdic = <?= json_encode($labels_adic) ?>;
+const totalesAdic = <?= json_encode($totales_adic) ?>;
 </script>
 
 <!-- 2. Chart.js -->
- <!-- CARGA Chart.js SOLO UNA VEZ -->
+<!-- CARGA Chart.js SOLO UNA VEZ -->
 <!-- Chart.js -->
 
 
 <!-- Tus archivos JS externos -->
-<script src="/assets/js/chart-categorias.js"></script>
+<script src="/assets/js/chart-categorias.js?v=2"></script>
 <script src="/assets/js/chart-ingresos-gastos.js"></script>
 <script src="/assets/js/chart-adicionales.js"></script>
-
-

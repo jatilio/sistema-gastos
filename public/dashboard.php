@@ -77,34 +77,12 @@ $due_date_real_sql = "
     END
 ";
 
-/* ============================================================
-   5. PRÓXIMOS PAGOS (10 DÍAS)
-============================================================ */
-$stmt = $pdo->prepare("
-    SELECT 
-        mp.id,
-        mp.descripcion,
-        mp.amount,
-        mp.categoria,
-        $due_date_real_sql AS due_date_real
-    FROM mantenimiento_pagos mp
-    LEFT JOIN gastos g
-        ON g.mantenimiento_id = mp.id
-        AND g.usuario_id = mp.usuario_id
-        AND g.pagado = 'Si'
-        AND MONTH(g.due_date)=MONTH(CURDATE())
-        AND YEAR(g.due_date)=YEAR(CURDATE())
-    WHERE mp.usuario_id = ?
-      AND mp.activo = 1
-      AND g.id IS NULL
-      AND (
-            mp.frecuencia = 'M'
-            AND $due_date_real_sql BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 10 DAY)
-          )
-    ORDER BY due_date_real ASC
-");
-$stmt->execute([$usuario]);
-$proximos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+require_once __DIR__.'/../config/proximos_pagos.php';
+$hoyVencimientos=new DateTimeImmutable('today',new DateTimeZone('America/New_York'));
+$finVencimientos=$hoyVencimientos->modify('+7 days')->format('Y-m-d');
+$consultaPlanes=$pdo->prepare('SELECT * FROM mantenimiento_pagos WHERE usuario_id=?');$consultaPlanes->execute([$usuario]);
+$consultaGastos=$pdo->prepare('SELECT id,mantenimiento_id,descripcion,amount,due_date,pagado FROM gastos WHERE usuario_id=? AND due_date>=? AND due_date<=?');$consultaGastos->execute([$usuario,$hoyVencimientos->format('Y-m-d'),$finVencimientos]);
+$proximos=proximosPagosFinanzas($consultaPlanes->fetchAll(PDO::FETCH_ASSOC),$consultaGastos->fetchAll(PDO::FETCH_ASSOC),$hoyVencimientos);
 
 /* ============================================================
    6. PAGOS VENCIDOS
@@ -176,17 +154,22 @@ $vencidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
      PRÓXIMOS PAGOS
 ============================================================ -->
 <div class="alert-section proximos">
-    <h2>Próximos pagos (10 días)</h2>
+    <h2>Próximos pagos (7 días)</h2>
 
+    <p>Desde hoy hasta <?= htmlspecialchars(date('d/m/Y',strtotime($finVencimientos))) ?> · <?= count($proximos) ?>
+        pago(s) · Total: $<?= number_format(array_sum(array_column($proximos,'amount')),2) ?></p>
     <?php if (empty($proximos)): ?>
-    <p class="no-alerts">No hay pagos próximos.</p>
+    <p class="no-alerts">No tienes pagos pendientes que venzan en los próximos 7 días.</p>
     <?php else: ?>
     <ul class="alert-list">
         <?php foreach ($proximos as $p): ?>
         <li class="alert-item proximo">
             <strong><?= htmlspecialchars($p['descripcion']) ?></strong>
             <span>$<?= number_format($p['amount'],2) ?> — vence el
-                <?= date("d/m/Y", strtotime($p['due_date_real'])) ?></span>
+                <?= date("d/m/Y", strtotime($p['due_date_real'])) ?> ·
+                <?= $p['due_date_real']===$hoyVencimientos->format('Y-m-d')?'Vence hoy':'En '.(int)$hoyVencimientos->diff(new DateTimeImmutable($p['due_date_real'],new DateTimeZone('America/New_York')))->days.' día(s)' ?></span>
+            <a
+                href="/index.php?menu=<?= $p['generado']?'gastos_ingresar':'mantenimiento_pagos' ?>"><?= $p['generado']?'Ver pago pendiente':'Ver pago programado' ?></a>
         </li>
         <?php endforeach; ?>
     </ul>

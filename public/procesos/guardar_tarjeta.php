@@ -23,6 +23,8 @@ $banco        = $_POST['banco'] ?? null;
 $nombre       = $_POST['nombre_tarjeta'] ?? null;
 $tipo         = $_POST['tipo'] ?? null;
 $limite       = $_POST['limite'] ?? null;
+$saldo_actual = $_POST['saldo_actual'] ?? '0';
+if(!is_scalar($saldo_actual)||!is_numeric($saldo_actual)){http_response_code(422);exit('Saldo inválido.');}
 $dia_corte    = $_POST['dia_corte'] ?? null;
 $dia_pago     = $_POST['dia_pago'] ?? null;
 $marca        = $_POST['marca'] ?? null;
@@ -46,9 +48,9 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     $sql = "INSERT INTO tarjetas 
-            (usuario_id, banco, nombre_tarjeta, tipo, limite, dia_corte, dia_pago, marca, ultimos_4, estado)
+            (usuario_id, banco, nombre_tarjeta, tipo, limite, saldo_actual, dia_corte, dia_pago, marca, ultimos_4, estado)
             VALUES 
-            (:usuario_id, :banco, :nombre, :tipo, :limite, :dia_corte, :dia_pago, :marca, :ultimos_4, :estado)";
+            (:usuario_id, :banco, :nombre, :tipo, :limite, :saldo_actual, :dia_corte, :dia_pago, :marca, :ultimos_4, :estado)";
 
     $stmt = $pdo->prepare($sql);
 
@@ -58,6 +60,7 @@ try {
         ':nombre'     => $nombre,
         ':tipo'       => $tipo,
         ':limite'     => $limite,
+        ':saldo_actual'=> $tipo==='credito'?$saldo_actual:0,
         ':dia_corte'  => $dia_corte,
         ':dia_pago'   => $dia_pago,
         ':marca'      => $marca,

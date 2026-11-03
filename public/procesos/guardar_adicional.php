@@ -4,6 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once dirname(__DIR__, 2) . '/config/db.php';
+require_once dirname(__DIR__, 2) . '/config/saldos_finanzas.php';
 
 $usuario_id = $_SESSION['usuario_id'] ?? null;
 
@@ -44,10 +45,13 @@ try {
         $banco_pago    = $bancos_pago[$index] ?? null;
         $payment_date  = $payment_dates[$index] ?? null;
         $nota          = trim($notes[$index] ?? '');
+        $medio=medioGastoFinanzas($pdo,(int)$usuario_id,(string)$metodo_pago,(string)$banco_pago);
+        $metodo_pago=$medio['metodo'];$banco_pago=$medio['banco'];$tarjetaGasto=$medio['tarjeta'];
 
         $stmt = $pdo->prepare("
             INSERT INTO gastos (
                 usuario_id,
+                tarjeta_id,
                 descripcion,
                 categoria,
                 amount,
@@ -59,6 +63,7 @@ try {
                 tipo
             ) VALUES (
                 :usuario_id,
+                :tarjeta_id,
                 :descripcion,
                 :categoria,
                 :amount,
@@ -73,6 +78,7 @@ try {
 
         $stmt->execute([
             ':usuario_id'   => $usuario_id,
+            ':tarjeta_id'   => $tarjetaGasto,
             ':descripcion'  => $descripcion,
             ':categoria'    => $categoria,
             ':amount'       => $monto,

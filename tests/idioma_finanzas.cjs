@@ -1,0 +1,12 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const handlers={};const context={window:{addEventListener:(event,fn)=>handlers[event]=fn},document:{title:'Finanzas',readyState:'loading',addEventListener(){}},localStorage:{getItem:()=> 'en'},MutationObserver:class{observe(){}disconnect(){}},requestAnimationFrame(){}};
+vm.runInNewContext(fs.readFileSync('public/assets/js/finance-language.js','utf8'),context);
+const translate=context.window.financeLanguage.translate;
+assert.equal(translate('Desde hoy hasta 10/11/2026 · 2 pago(s) · Total: $77.63'),'From today through 10/11/2026 · 2 payment(s) · Total: $77.63');
+assert.match(translate('Desde hoy hasta 10/11/2026 · 2\n        pago(s) · Total: $77.63'),/payment\(s\)/);
+assert.equal(translate('Próximos pagos (7 días)'),'Upcoming Payments (7 Days)');
+assert.equal(translate('En 3 día(s)'),'In 3 day(s)');
+assert.equal(translate('Vence hoy'),'Due today');
+handlers.storage({key:'finance-language',newValue:'es'});
+assert.equal(translate('Desde hoy hasta 10/11/2026 · 2 pago(s) · Total: $77.63'),'Desde hoy hasta 10/11/2026 · 2 pago(s) · Total: $77.63');
+console.log('OK: resumen variable, fechas e importes conservados, vencimientos y regreso a español.');

@@ -20,3 +20,6 @@ try {
 
 require_once __DIR__.'/datos_compartidos.php';
 resolverDatosFinanzas($pdo);
+
+require_once __DIR__.'/filtros_navegacion.php';
+conservarFiltrosFinanzas();
