@@ -2,24 +2,28 @@
    FILAS DINÁMICAS
 ============================ */
 
-function agregarFila() {
-  const contenedor = document.getElementById("contenedor-filas");
-  const fila = document.querySelector(".fila-adicional").cloneNode(true);
-
-  // Limpiar valores
-  fila.querySelectorAll("input, select").forEach((i) => (i.value = ""));
-
-  // Reasignar evento
-  fila.querySelector('select[name="descripcion[]"]').onchange = function () {
-    asignarCategoria(this);
-  };
-
-  contenedor.appendChild(fila);
+function inicializarDescripciones(contenedor) {
+  if (!window.jQuery?.fn?.select2) return;
+  window.jQuery(contenedor).find('.descripcion-select').select2({placeholder:'Buscar descripción...',width:'100%'});
 }
-
+function agregarFila() {
+  const contenedor = document.getElementById('contenedor-filas');
+  const fila = contenedor.querySelector('.fila-adicional').cloneNode(true);
+  fila.querySelectorAll('.select2-container').forEach(elemento => elemento.remove());
+  fila.querySelectorAll('[data-select2-id]').forEach(elemento => elemento.removeAttribute('data-select2-id'));
+  fila.querySelectorAll('input, select').forEach(control => {
+    control.value='';
+    if(control.classList.contains('descripcion-select')) {
+      control.classList.remove('select2-hidden-accessible');
+      control.removeAttribute('aria-hidden');control.removeAttribute('tabindex');
+    }
+  });
+  contenedor.appendChild(fila);
+  inicializarDescripciones(fila);
+}
 function eliminarFila(btn) {
-  const filas = document.querySelectorAll(".fila-adicional");
-  if (filas.length > 1) btn.parentElement.remove();
+  const fila=btn.closest('.fila-adicional');
+  if(fila && document.querySelectorAll('.fila-adicional').length>1) fila.remove();
 }
 
 /* ============================

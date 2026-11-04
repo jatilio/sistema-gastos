@@ -37,70 +37,76 @@ $rows = $stmt->fetchAll();
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <title>Top 10 Gastos Adicionales por Mes</title>
-    <link rel="stylesheet" href="assets/css/top10.css">
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/assets/css/finance-ui.css?v=1">
 
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="/assets/css/finance-responsive.css?v=1">
+<link rel="stylesheet" href="/assets/css/top10.css?v=2">
 <script src="/assets/js/finance-interface.js?v=1"></script>
-<script src="/assets/js/finance-language.js?v=1"></script>
+<script src="/assets/js/finance-language.js?v=5"></script>
 </head>
 <body>
+<main class="top-expenses-page">
 
-<h2>Top 10 Gastos Adicionales</h2>
-<a class="btn-volver" href="index.php?menu=dashboard">← Volver al Menú Principal</a>
+<header class="top-expenses-heading"><h1>Top 10 Gastos Adicionales</h1>
+<a class="btn-volver" href="index.php?menu=dashboard">← Volver al Menú Principal</a></header>
 
 
 <!-- FILTROS -->
 <form method="GET" class="filtros">
-    <label>Año:</label>
-    <select name="anio">
+    <div class="top-filter-field"><label for="top-year">Año:</label>
+    <select id="top-year" name="anio">
         <?php for ($y = date('Y'); $y >= 2020; $y--): ?>
             <option value="<?= $y ?>" <?= $anio == $y ? 'selected' : '' ?>><?= $y ?></option>
         <?php endfor; ?>
-    </select>
+    </select></div>
 
-    <label>Mes:</label>
-    <select name="mes">
+    <div class="top-filter-field"><label for="top-month">Mes:</label>
+    <select id="top-month" name="mes">
         <?php for ($m = 1; $m <= 12; $m++): ?>
             <option value="<?= sprintf('%02d', $m) ?>" <?= $mes == sprintf('%02d', $m) ? 'selected' : '' ?>>
                 <?= date('F', mktime(0, 0, 0, $m, 1)) ?>
             </option>
         <?php endfor; ?>
-    </select>
+    </select></div>
 
     <button type="submit">Filtrar</button>
 </form>
 
-<table>
-    <tr>
+<div class="finance-table-scroll top-expenses-table">
+<table aria-label="Top 10 Gastos Adicionales">
+    <thead><tr>
         <th>Mes</th>
         <th>Descripción</th>
         <th>Categoría</th>
         <th>Veces</th>
         <th>Total</th>
         <th>Detalle</th>
-    </tr>
+    </tr></thead><tbody>
 
     <?php foreach ($rows as $r): ?>
     <tr>
-        <td><?= htmlspecialchars((string)($r['mes']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
-        <td><?= htmlspecialchars((string)($r['descripcion']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
-        <td><?= htmlspecialchars((string)($r['categoria']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
-        <td><?= htmlspecialchars((string)($r['veces_en_el_mes']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
-        <td>$<?= number_format($r['total_mes'], 2) ?></td>
-        <td>
+        <td class="top-expense-field"><span class="top-expense-label">Mes</span><span class="top-expense-value"><?= htmlspecialchars((string)($r['mes']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></span></td>
+        <td class="top-expense-field"><span class="top-expense-label">Descripción</span><span class="top-expense-value"><?= htmlspecialchars((string)($r['descripcion']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></span></td>
+        <td class="top-expense-field"><span class="top-expense-label">Categoría</span><span class="top-expense-value"><?= htmlspecialchars((string)($r['categoria']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></span></td>
+        <td class="top-expense-field"><span class="top-expense-label">Veces</span><span class="top-expense-value"><?= htmlspecialchars((string)($r['veces_en_el_mes']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></span></td>
+        <td class="top-expense-field"><span class="top-expense-label">Total</span><span class="top-expense-value">$<?= number_format($r['total_mes'], 2) ?></span></td>
+        <td class="top-expense-field"><span class="top-expense-label">Detalle</span><span class="top-expense-value">
             <a href="detalle_gasto.php?descripcion=<?= urlencode($r['descripcion']) ?>&mes=<?= htmlspecialchars((string)($r['mes']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>">
                 Ver detalle
             </a>
-        </td>
+        </span></td>
     </tr>
     <?php endforeach; ?>
 
-</table>
+<?php if(!$rows): ?><tr><td colspan="6" class="top-expenses-empty">No hay gastos adicionales para este período.</td></tr><?php endif; ?>
+</tbody></table></div>
+</main>
 
 </body>
 </html>

@@ -337,6 +337,32 @@ Por Vencer (7 días)|Expiring Soon (7 days)
 Movimientos de Inventario|Inventory Transactions
 Movimientos del Inventario|Inventory Transactions
 Historial de Movimientos|Transaction History
+Consulta quién registró o cambió un gasto o pago. Se muestran las operaciones realizadas desde la activación de esta función.|See who recorded or changed an expense or payment. Only activity since this feature was enabled is shown.
+Persona o descripción|Person or description
+REGISTRO|CREATED
+PAGO|PAYMENT
+MODIFICACIÓN|UPDATED
+ELIMINACIÓN|DELETED
+Ver qué cambió|View Changes
+Ver datos del movimiento|View Transaction Details
+Campo|Field
+Antes|Before
+Después|After
+Valor|Value
+Sin valor|No value
+No hay movimientos que coincidan con estos filtros.|No transactions match these filters.
+Revisa el rango de fechas.|Check the date range.
+Páginas del historial|History Pages
+ID tarjeta de origen|Source Card ID
+ID tarjeta abonada|Destination Card ID
+ID pago programado|Scheduled Payment ID
+Banco de pago|Payment Account
+Validado|Verified
+Anterior|Previous
+Siguiente|Next
+Limpiar|Clear
+Registrar un nuevo gasto|Record a New Expense
+
 Reporte de Bajo Stock|Low Stock Report
 Descargar Bajo Stock|Download Low Stock Report
 REPORTE FINANCIERO MENSUAL|MONTHLY FINANCIAL REPORT
@@ -379,7 +405,7 @@ Abr|Apr
 Ago|Aug
 Dic|Dec
 `;
- const dictionary = new Map(pairs.trim().split('\n').map(line => line.split('|')));
+ const dictionary = new Map(pairs.trim().split('\n').filter(line => line.includes('|')).map(line => line.split('|')));
  const normalized = new Map(Array.from(dictionary, ([a,b]) => [a.toLocaleLowerCase('es'),b]));
  let language; try { language=localStorage.getItem('finance-language')||'es'; } catch { language='es'; }
  if (!['es','en'].includes(language)) language='es';
@@ -390,10 +416,11 @@ Dic|Dec
   if (language !== 'en') return text;
   const spaces = text.match(/^(\s*)([\s\S]*?)(\s*)$/);
   let value = spaces[2];
+  if(/^Página \d+ de \d+$/.test(value)) return spaces[1]+value.replace(/^Página (\d+) de (\d+)$/,'Page $1 of $2')+spaces[3];
   const exact = dictionary.get(value) || normalized.get(value.toLocaleLowerCase('es'));
   if (exact) return spaces[1]+exact+spaces[3];
   // Frases variables: fechas, importes y decoración conservan sus valores.
-  const phrases=[['Desde hoy hasta','From today through'],['pago(s)','payment(s)'],['día(s)','day(s)'],['Acumulado','Year to date'],['Indicadores de','Figures for'],['Gastos pagados con débito','Expenses paid by debit'],['Fijos por vencimiento y adicionales por fecha de pago.','Fixed expenses by due date and additional expenses by payment date.'],['Enero a','January to'],['Incluye pagos adelantados','Includes advance payments'],['Pagos adelantados','Advance payments'],['Pagados antes del cierre de','Paid before the end of'],['con vencimiento en meses posteriores. Se muestran en su mes de vencimiento.','due in later months. Shown in their due month.'],['Gastos vs','Expenses vs'],['Gastaste','You spent'],['menos.','less.'],['más.','more.'],['del total','of total'],['Solo meses con registros','Only months with records'],['Pagos con débito','Debit payments'],['se aplicará al mes','will apply to'],['ya generado','already generated'],['vence el','due on'],['venció el','was due on'],['Hola,','Hello,'],['Quincena','Pay period']];
+  const phrases=[['movimiento(s)','transaction(s)'],['Gasto #','Expense #'],['Desde hoy hasta','From today through'],['pago(s)','payment(s)'],['día(s)','day(s)'],['Acumulado','Year to date'],['Indicadores de','Figures for'],['Gastos pagados con débito','Expenses paid by debit'],['Fijos por vencimiento y adicionales por fecha de pago.','Fixed expenses by due date and additional expenses by payment date.'],['Enero a','January to'],['Incluye pagos adelantados','Includes advance payments'],['Pagos adelantados','Advance payments'],['Pagados antes del cierre de','Paid before the end of'],['con vencimiento en meses posteriores. Se muestran en su mes de vencimiento.','due in later months. Shown in their due month.'],['Gastos vs','Expenses vs'],['Gastaste','You spent'],['menos.','less.'],['más.','more.'],['del total','of total'],['Solo meses con registros','Only months with records'],['Pagos con débito','Debit payments'],['se aplicará al mes','will apply to'],['ya generado','already generated'],['vence el','due on'],['venció el','was due on'],['Hola,','Hello,'],['Quincena','Pay period']];
   for (const [from,to] of phrases) value=value.replace(new RegExp(from.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'giu'),to);
   value=value.replace(/\bEn\s+(\d+)\s+day\(s\)/giu,'In $1 day(s)');
   const entries=Array.from(dictionary).sort((a,b)=>b[0].length-a[0].length);
@@ -455,9 +482,9 @@ Dic|Dec
   const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
   const nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
   nodes.forEach(convertText);
-  document.querySelectorAll('[placeholder],[aria-label],[title]').forEach(element=>{
+  document.querySelectorAll('[placeholder],[aria-label],[title],[data-label]').forEach(element=>{
    let attrs=attributeMemory.get(element); if (!attrs) {attrs={}; attributeMemory.set(element,attrs);}
-   for (const attr of ['placeholder','aria-label','title']) {
+   for (const attr of ['placeholder','aria-label','title','data-label']) {
     if (!element.hasAttribute(attr)) continue;
     if (!(attr in attrs)) attrs[attr]=element.getAttribute(attr);
     const value=translate(attrs[attr]); if(element.getAttribute(attr)!==value) element.setAttribute(attr,value);

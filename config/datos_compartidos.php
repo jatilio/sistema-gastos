@@ -7,10 +7,12 @@ function resolverDatosFinanzas(PDO $pdo): void {
     $consulta=$pdo->prepare('SELECT propietario_id FROM usuarios_datos_compartidos WHERE usuario_id=?');
     $consulta->execute([$identidad]);
     $propietario=$consulta->fetchColumn();
-    $nombre=$pdo->prepare("SELECT COALESCE(NULLIF(TRIM(nombre), ''),usuario) FROM usuarios WHERE id=?");
+    $nombre=$pdo->prepare("SELECT usuario,COALESCE(NULLIF(TRIM(nombre), ''),usuario) AS nombre_visible FROM usuarios WHERE id=?");
     $nombre->execute([$identidad]);
-    $visible=$nombre->fetchColumn();
+    $cuenta=$nombre->fetch(PDO::FETCH_ASSOC);
+    $visible=$cuenta===false?false:$cuenta['nombre_visible'];
     if($visible===false){$_SESSION=[];http_response_code(401);exit('La sesión ya no es válida. Vuelve a ingresar.');}
+    $_SESSION['usuario_es_admin']=strtolower((string)$cuenta['usuario'])==='admin';
     $_SESSION['usuario_nombre']=$visible;
     $_SESSION['usuario_autenticado_id']=$identidad;
     $_SESSION['usuario_id']=$propietario===false?$identidad:(int)$propietario;

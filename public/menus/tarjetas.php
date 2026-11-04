@@ -9,9 +9,10 @@ $stmt->execute([$_SESSION['usuario_id']]);
 $tarjetas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<link rel="stylesheet" href="assets/css/tarjetas_gastos.css">
+<link rel="stylesheet" href="/assets/css/tarjetas_gastos.css">
+<link rel="stylesheet" href="/assets/css/tarjetas-responsive.css?v=1">
 
-<div class="tarjeta-gastos-container">
+<div class="tarjeta-gastos-container registered-cards">
 
     <!-- MENSAJES -->
     <?php if (!empty($_GET['msg'])): ?>
@@ -110,7 +111,7 @@ $tarjetas = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- LISTADO -->
     <h2 class="titulo-modulo">📋 Tarjetas Registradas</h2>
 
-    <div class="tabla-responsive">
+    <div class="tabla-responsive finance-table-scroll registered-card-list">
         <table class="tabla-tarjetas">
             <thead>
                 <tr>
@@ -128,13 +129,13 @@ $tarjetas = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <tbody>
                 <?php foreach ($tarjetas as $t): ?>
                     <tr>
-                        <td><?= htmlspecialchars($t['banco']) ?></td>
-                        <td><?= htmlspecialchars($t['nombre_tarjeta']) ?></td>
-                        <td><?= htmlspecialchars(ucfirst((string)($t['tipo'] ?? '')),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
-                        <td><?= $t['tipo'] === 'credito' ? '$' . number_format($t['limite'], 2) : '-' ?></td>
-                        <td><?= htmlspecialchars((string)($t['marca'] ?: '-'),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
-                        <td><?= htmlspecialchars((string)($t['ultimos_4'] ?: '-'),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
-                        <td><?= htmlspecialchars(ucfirst((string)($t['estado'] ?? '')),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+                        <td class="card-field"><span class="card-field-label">Banco</span><span class="card-field-value"><?= htmlspecialchars($t['banco']) ?></span></td>
+                        <td class="card-field"><span class="card-field-label">Nombre</span><span class="card-field-value"><?= htmlspecialchars($t['nombre_tarjeta']) ?></span></td>
+                        <td class="card-field"><span class="card-field-label">Tipo</span><span class="card-field-value"><?= htmlspecialchars(ucfirst((string)($t['tipo'] ?? '')),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></span></td>
+                        <td class="card-field"><span class="card-field-label">Límite</span><span class="card-field-value"><?= $t['tipo'] === 'credito' ? '$' . number_format($t['limite'], 2) : '-' ?></span></td>
+                        <td class="card-field"><span class="card-field-label">Marca</span><span class="card-field-value"><?= htmlspecialchars((string)($t['marca'] ?: '-'),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></span></td>
+                        <td class="card-field"><span class="card-field-label">Últimos 4</span><span class="card-field-value"><?= htmlspecialchars((string)($t['ultimos_4'] ?: '-'),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></span></td>
+                        <td class="card-field"><span class="card-field-label">Estado</span><span class="card-field-value"><?= htmlspecialchars(ucfirst((string)($t['estado'] ?? '')),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></span></td>
 
                         <td class="acciones">
                             <a href="index.php?menu=editar_tarjeta&id=<?= htmlspecialchars((string)($t['id']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>" class="btn-editar">Editar</a>

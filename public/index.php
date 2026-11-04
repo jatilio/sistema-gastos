@@ -19,6 +19,7 @@ if (!$usuario_id) {
 
 // ==================== MENÚ ====================
 $menu = $_GET['menu'] ?? $_GET['page'] ?? 'dashboard';
+if($menu==='historial_movimientos'){if(empty($_SESSION['usuario_es_admin'])){http_response_code(403);exit('Acceso exclusivo para el administrador. <a href="/index.php">Regresar al Inicio</a>');}}
 
 // Si vienen month/year y no viene menu, forzar reportes
 if (!isset($_GET['menu']) && (isset($_GET['month']) || isset($_GET['year']))) {
@@ -87,7 +88,7 @@ switch($menu){
 <link rel="stylesheet" href="/assets/css/finance-ui.css?v=1">
 <link rel="stylesheet" href="/assets/css/finance-responsive.css?v=2">
 <script src="/assets/js/finance-interface.js?v=1"></script>
-<script src="/assets/js/finance-language.js?v=4"></script>
+<script src="/assets/js/finance-language.js?v=5"></script>
 </head>
 
 <body class="finance-app">
@@ -110,7 +111,7 @@ switch($menu){
     ];
     foreach ($links as $grupo => $opciones): ?>
         <span class="menu-label"><?= $grupo ?></span>
-        <?php foreach ($opciones as $clave => $etiqueta): ?>
+        <?php foreach ($opciones as $clave => $etiqueta): if($clave==='historial_movimientos'&&empty($_SESSION['usuario_es_admin']))continue; ?>
         <a href="/index.php?menu=<?= $clave ?>" <?= ($menu === $clave || ($clave === 'tarjetas' && $menu === 'editar_tarjeta')) ? 'aria-current="page"' : '' ?>><?= $etiqueta ?></a>
         <?php endforeach; ?>
         <?php if ($grupo === 'Registrar'): ?><a href="/gastos/adicionales.php">Registrar gastos</a><?php endif; ?>

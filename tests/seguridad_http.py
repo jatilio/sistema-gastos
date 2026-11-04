@@ -53,10 +53,22 @@ with tempfile.TemporaryDirectory(prefix='finanzas-seguridad-') as tmp:
             assert pedir('/procesos/eliminar_tarjeta.php',{'csrf_finanzas':token,'id':2147483647},True)[0]==404
             for menu in ['dashboard','dashboard_prueba','ingresos_salario','gastos_ingresar','gastos_cobrados','reportes','reporte_tarjetas','reporte_metodo_pago','mantenimiento_pagos','tarjetas','tarjetas_gastos','historial_movimientos']:
                 status,h,html=pedir('/index.php?menu='+menu,sesion=True)
+                if menu=='historial_movimientos':
+                    assert status==403,'Alberto puede entrar al historial'
+                    continue
                 assert status==200,(menu,status,html[:100])
+                assert 'href="/index.php?menu=historial_movimientos"' not in html,'Historial visible en menú de Alberto'
                 assert not re.search(r'(Fatal error|Warning:|Parse error|No se pudo completar la operaci)',html),menu
                 for form in re.findall(r'<form\b[^>]*>.*?</form>',html,re.I|re.S):
                     if re.search(r'method\s*=\s*[\x22\x27]?post\b',form,re.I): assert 'name="csrf_finanzas"' in form,(menu,'formulario sin protección')
+            assert pedir('/historial_movimientos.php',sesion=True)[0]==403
+            adminsid='adminprueba'+os.urandom(8).hex()
+            admincodigo=codigo.replace("'usuario_id'=>4,'usuario_autenticado_id'=>4","'usuario_id'=>3,'usuario_autenticado_id'=>3")
+            subprocess.run(['php','-r',admincodigo,ruta,adminsid],cwd=BASE,check=True,capture_output=True)
+            for path in ['/index.php?menu=historial_movimientos','/historial_movimientos.php']:
+                status,h,html=pedir(path,headers={'Cookie':'PHPSESSID='+adminsid})
+                assert status==200 and 'historial-volver' in html,(path,status)
+            print('OK permisos: historial reservado al admin por menú y URL directa; Alberto bloqueado, botón de retorno disponible.')
             for path in ['/reporte_pdf.php','/reportes/exportar_metodo_pago_pdf.php','/gastos/inventario_bajo_stock_pdf.php','/gastos/reporte_bajo_stock_pdf.php']:
                 status,h,contenido=pedir(path,sesion=True)
                 assert status==200 and contenido.startswith('%PDF-'),(path,status,contenido[:160])

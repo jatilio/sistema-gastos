@@ -3,13 +3,14 @@ require_once __DIR__ . '/../../config/seguridad_web.php';
 
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 $_SESSION['adicional_token'] ??= bin2hex(random_bytes(32));
-require_once '../header.php';
-require_once '../../config/db.php';
+require_once __DIR__.'/../header.php';
+require_once __DIR__.'/../../config/db.php';
 $opcionesMedios=$pdo->prepare("SELECT nombre AS nombre FROM cuentas WHERE usuario_id=? AND tipo='DEBITO' UNION SELECT nombre_tarjeta AS nombre FROM tarjetas WHERE usuario_id=? AND tipo='credito' AND estado='activa' ORDER BY nombre");
 $opcionesMedios->execute([$_SESSION['usuario_id'],$_SESSION['usuario_id']]);$nombresMedios=$opcionesMedios->fetchAll(PDO::FETCH_COLUMN);
 ?>
 
-<div class="container mt-4">
+<link rel="stylesheet" href="/assets/css/adicionales-responsive.css?v=1">
+<div class="expense-entry mt-4">
     <h2 class="mb-4">Registrar un nuevo gasto</h2>
 
 <a href="/index.php" class="btn btn-secondary mb-3">
@@ -32,10 +33,10 @@ $opcionesMedios->execute([$_SESSION['usuario_id'],$_SESSION['usuario_id']]);$nom
         <div id="contenedor-filas">
 
             <!-- FILA BASE (SE CLONA) -->
-            <div class="row fila-adicional mb-3 p-3 border rounded">
+            <div class="fila-adicional expense-row mb-3 p-3 border rounded">
 
                 <!-- DESCRIPCIÓN -->
-                <div class="col-md-3">
+                <div class="expense-field">
                     <label class="form-label">Descripción</label>
                     <select name="descripcion[]" class="form-select descripcion-select" onchange="asignarCategoria(this)" required>
                         <option value="">Seleccione...</option>
@@ -81,13 +82,13 @@ $opcionesMedios->execute([$_SESSION['usuario_id'],$_SESSION['usuario_id']]);$nom
                 </div>
 
                 <!-- MONTO -->
-                <div class="col-md-2">
+                <div class="expense-field">
                     <label class="form-label">Monto ($)</label>
                     <input type="number" name="monto[]" class="form-control" step="0.01" required>
                 </div>
 
                 <!-- CATEGORÍA -->
-                <div class="col-md-2">
+                <div class="expense-field">
                     <label class="form-label">Categoría</label>
                     <select name="categoria[]" class="form-select" required>
                         <option value="">Seleccione</option>
@@ -107,7 +108,7 @@ $opcionesMedios->execute([$_SESSION['usuario_id'],$_SESSION['usuario_id']]);$nom
                 </div>
 
                 <!-- MÉTODO DE PAGO -->
-                <div class="col-md-2">
+                <div class="expense-field">
                     <label class="form-label">Método Pago</label>
                     <select name="metodo_pago[]" class="form-select" required>
                         <option value="">Seleccione</option>
@@ -119,7 +120,7 @@ $opcionesMedios->execute([$_SESSION['usuario_id'],$_SESSION['usuario_id']]);$nom
                 </div>
 
                 <!-- BANCO -->
-                <div class="col-md-2">
+                <div class="expense-field">
                     <label class="form-label">Banco</label>
                     <select name="banco_pago[]" class="form-select">
                         <option value="">Seleccione</option>
@@ -128,13 +129,13 @@ $opcionesMedios->execute([$_SESSION['usuario_id'],$_SESSION['usuario_id']]);$nom
                 </div>
 
                 <!-- PAYMENT DATE -->
-                <div class="col-md-2 mt-3">
+                <div class="expense-field">
                     <label class="form-label">Fecha de pago</label>
                     <input type="date" name="payment_date[]" class="form-control" required>
                 </div>
 
                 <!-- ELIMINAR -->
-                <div class="col-md-1 d-flex align-items-end mt-3">
+                <div class="expense-remove">
                     <button type="button" class="btn btn-danger w-100" onclick="eliminarFila(this)" aria-label="Quitar esta fila" title="Quitar esta fila">X</button>
                 </div>
 
@@ -142,8 +143,10 @@ $opcionesMedios->execute([$_SESSION['usuario_id'],$_SESSION['usuario_id']]);$nom
 
         </div> <!-- FIN CONTENEDOR -->
 
-        <button type="button" class="btn btn-success mt-3" onclick="agregarFila()">Agregar Fila</button>
-        <button type="submit" class="btn btn-primary mt-3">Guardar Gastos</button>
+        <div class="expense-actions">
+        <button type="button" class="btn btn-success" onclick="agregarFila()">Agregar Fila</button>
+        <button type="submit" class="btn btn-primary">Guardar Gastos</button>
+        </div>
 
     </form>
 </div>
@@ -154,13 +157,10 @@ $opcionesMedios->execute([$_SESSION['usuario_id'],$_SESSION['usuario_id']]);$nom
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    $('.descripcion-select').select2({
-        placeholder: "Buscar descripción...",
-        width: '100%'
-    });
+    inicializarDescripciones(document);
 });
 </script>
 
-<script src="../assets/js/adicionales.js"></script>
+<script src="/assets/js/adicionales.js?v=2"></script>
 
 <?php require_once '../footer.php'; ?>

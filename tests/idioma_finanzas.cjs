@@ -7,6 +7,10 @@ assert.match(translate('Desde hoy hasta 10/11/2026 · 2\n        pago(s) · Tota
 assert.equal(translate('Próximos pagos (7 días)'),'Upcoming Payments (7 Days)');
 assert.equal(translate('En 3 día(s)'),'In 3 day(s)');
 assert.equal(translate('Vence hoy'),'Due today');
+assert.equal(translate('Página 2 de 5'),'Page 2 of 5');
+assert.equal(translate('Ver qué cambió'),'View Changes');
+assert.equal(translate('MODIFICACIÓN'),'UPDATED');
+assert.equal(translate('8 movimiento(s)'),'8 transaction(s)');
 handlers.storage({key:'finance-language',newValue:'es'});
 assert.equal(translate('Desde hoy hasta 10/11/2026 · 2 pago(s) · Total: $77.63'),'Desde hoy hasta 10/11/2026 · 2 pago(s) · Total: $77.63');
 console.log('OK: resumen variable, fechas e importes conservados, vencimientos y regreso a español.');
