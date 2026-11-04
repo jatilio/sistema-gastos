@@ -168,3 +168,8 @@ html[data-finance-ui] .mobile-navigation .finance-preferences { margin-left:auto
 @media print { .finance-quick-action,.finance-preferences { display:none!important; } }
 /* Títulos de grupos del menú. */
 html[data-finance-ui] .sidebar .menu-label { font-weight:700; }
+
+/* Al abrir el menú móvil, la página consultada no queda debajo de las opciones. */
+@media screen and (max-width:760px) {
+ .finance-app .dashboard > .sidebar.is-open ~ .main-content { display:none!important; }
+}

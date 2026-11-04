@@ -2,6 +2,10 @@
 ob_start();ini_set('session.save_path',sys_get_temp_dir());session_id('pagos-test-'.bin2hex(random_bytes(8)));session_start();
 require __DIR__.'/../config/db.php';
 require __DIR__.'/../config/saldos_finanzas.php';
+$pdo->exec('CREATE TEMPORARY TABLE cuentas(id INT PRIMARY KEY,usuario_id INT,nombre VARCHAR(100),tipo VARCHAR(20))');
+$pdo->exec("INSERT INTO cuentas VALUES(101,3,'MIDFLORIDA','DEBITO'),(102,9,'MIDFLORIDA','DEBITO')");
+$pdo->exec('CREATE TEMPORARY TABLE tarjetas(id INT PRIMARY KEY,usuario_id INT,nombre_tarjeta VARCHAR(100),tipo VARCHAR(20),banco VARCHAR(100))');
+$pdo->exec("INSERT INTO tarjetas VALUES(201,3,'Tarjeta de prueba','credito','Banco'),(202,9,'Tarjeta de prueba','credito','Banco')");
 $pdo->exec('CREATE TEMPORARY TABLE gastos (id INT PRIMARY KEY,usuario_id INT,descripcion VARCHAR(150),amount DECIMAL(10,2),pagado VARCHAR(5),payment_date DATE,confirmation VARCHAR(100),banco_pago VARCHAR(100),notes TEXT,metodo_pago VARCHAR(30),tarjeta_id INT,tarjeta_destino_id INT,validado INT DEFAULT 0) ENGINE=InnoDB');
 $pdo->exec("INSERT INTO gastos (id,usuario_id,descripcion,amount,pagado) VALUES (1,3,'Prueba',10,'No'),(2,9,'Ajeno',10,'No')");
 class FinPruebaPago extends Error{}
@@ -37,5 +41,15 @@ enviarPagoPrueba($pdo,['id'=>4,'metodo_pago'=>'Efectivo','payment_date'=>'2026-0
 if(http_response_code()!==422)throw new RuntimeException('Fecha inválida aceptada');
 $datos['id']=2;enviarPagoPrueba($pdo,$datos);
 if(http_response_code()!==404||$pdo->query('SELECT pagado FROM gastos WHERE id=2')->fetchColumn()!=='No')throw new RuntimeException('Pago ajeno permitido');
+$pdo->exec("INSERT INTO gastos(id,usuario_id,descripcion,amount,pagado) VALUES(5,3,'Cuenta por ID',10,'No'),(6,3,'Tarjeta por ID',10,'No'),(7,3,'Rechazo',10,'No')");
+foreach([['id'=>5,'medio_pago_id'=>'cuenta:101'],['id'=>6,'medio_pago_id'=>'tarjeta:201']] as $pago){
+ enviarPagoPrueba($pdo,$pago+['payment_date'=>'2026-10-29','amount'=>'13.50']);
+ $guardado=$pdo->query('SELECT * FROM gastos WHERE id='.(int)$pago['id'])->fetch();
+ if($guardado['pagado']!=='Si'||$guardado['amount']!=='13.50'||($pago['id']===5?$guardado['banco_pago']!=='MIDFLORIDA':(int)$guardado['tarjeta_id']!==201))throw new RuntimeException('Selección por ID no guardada');
+}
+foreach(['cuenta:102','tarjeta:202','tarjeta:999999','',[]] as $invalido){
+ enviarPagoPrueba($pdo,['id'=>7,'medio_pago_id'=>$invalido,'amount'=>'15.00']);
+ if(http_response_code()!==422||$pdo->query('SELECT pagado FROM gastos WHERE id=7')->fetchColumn()!=='No')throw new RuntimeException('Medio ajeno o vacío aceptado');
+}
 enviarPagoPrueba($pdo,['id'=>1,'validado'=>1]);if($pdo->query('SELECT validado FROM gastos WHERE id=1')->fetchColumn()!=1)throw new RuntimeException('Validación bloqueada');
-session_destroy();ob_end_clean();echo "OK: monto corregido, rechazo de montos inválidos, formularios anteriores compatibles, segundo pago bloqueado sin sobrescribir monto, fecha ni confirmación, propietario y validación. Solo tabla temporal.\n";
+session_destroy();ob_end_clean();echo "OK: cuentas y tarjetas por ID, rechazo de medios ajenos/vacíos, monto corregido, rechazo de montos inválidos, formularios anteriores compatibles, segundo pago bloqueado sin sobrescribir monto, fecha ni confirmación, propietario y validación. Solo tabla temporal.\n";

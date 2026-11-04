@@ -77,7 +77,18 @@ if(!$fechaValida||$fechaValida->format('Y-m-d')!==$payment_date||strlen((string)
 $metodoElegido=$_POST['metodo_pago']??'';$tarjeta_id=null;$metodo_pago=null;
 $credito=filter_var($_POST['tarjeta_credito_id']??null,FILTER_VALIDATE_INT);
 $debito=filter_var($_POST['tarjeta_debito_id']??null,FILTER_VALIDATE_INT);
-if($metodoElegido==='Efectivo'){$metodo_pago='efectivo';$banco_pago='EFECTIVO';}
+// El selector actual envía origen e ID; no depende de nombres ni traducciones.
+if(array_key_exists('medio_pago_id',$_POST)){
+ $seleccionMedio=$_POST['medio_pago_id'];
+ if(!is_string($seleccionMedio)||!preg_match('/^(cuenta|tarjeta):([1-9][0-9]*)$/D',$seleccionMedio,$partes)){http_response_code(422);exit('Selecciona una tarjeta o cuenta válida para registrar el pago.');}
+ if($partes[1]==='cuenta'){
+  $medio=$pdo->prepare("SELECT nombre FROM cuentas WHERE id=? AND usuario_id=? AND tipo='DEBITO'");$medio->execute([$partes[2],$usuario_id]);$nombreMedio=$medio->fetchColumn();
+  if($nombreMedio!==false){$banco_pago=$nombreMedio;$metodo_pago='debito';}
+ }else{
+  $medio=$pdo->prepare("SELECT id,nombre_tarjeta,tipo FROM tarjetas WHERE id=? AND usuario_id=?");$medio->execute([$partes[2],$usuario_id]);$elegido=$medio->fetch(PDO::FETCH_ASSOC);
+  if($elegido&&in_array($elegido['tipo'],['debito','credito'],true)){$tarjeta_id=(int)$elegido['id'];$banco_pago=$elegido['nombre_tarjeta'];$metodo_pago=$elegido['tipo'];}
+ }
+}elseif($metodoElegido==='Efectivo'){$metodo_pago='efectivo';$banco_pago='EFECTIVO';}
 elseif($metodoElegido==='Tarjeta Crédito'){
  $medio=$pdo->prepare("SELECT id,nombre_tarjeta FROM tarjetas WHERE id=? AND usuario_id=? AND tipo='credito'");$medio->execute([$credito,$usuario_id]);$elegido=$medio->fetch(PDO::FETCH_ASSOC);
  if($elegido){$tarjeta_id=(int)$elegido['id'];$banco_pago=$elegido['nombre_tarjeta'];$metodo_pago='credito';}

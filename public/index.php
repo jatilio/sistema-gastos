@@ -85,7 +85,7 @@ switch($menu){
 }
 ?>
 <link rel="stylesheet" href="/assets/css/finance-ui.css?v=1">
-<link rel="stylesheet" href="/assets/css/finance-responsive.css?v=1">
+<link rel="stylesheet" href="/assets/css/finance-responsive.css?v=2">
 <script src="/assets/js/finance-interface.js?v=1"></script>
 <script src="/assets/js/finance-language.js?v=4"></script>
 </head>
