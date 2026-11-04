@@ -1,6 +1,8 @@
 <?php
+require_once __DIR__ . '/../../config/seguridad_web.php';
+
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+    if(session_status()!==PHP_SESSION_ACTIVE)session_start();
 }
 
 include __DIR__ . "/../../config/db.php";
@@ -163,8 +165,8 @@ $bancos = $stmt->fetchAll(PDO::FETCH_COLUMN);
     <select name="tarjeta_credito_id">
         <option value="">Ninguna</option>
         <?php foreach ($tarjetas_credito as $t): ?>
-            <option value="<?= $t['id'] ?>">
-                <?= htmlspecialchars($t['nombre']) ?> (<?= $t['banco'] ?>)
+            <option value="<?= htmlspecialchars((string)($t['id']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>">
+                <?= htmlspecialchars($t['nombre']) ?> (<?= htmlspecialchars((string)($t['banco']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>)
             </option>
         <?php endforeach; ?>
     </select>
@@ -174,7 +176,7 @@ $bancos = $stmt->fetchAll(PDO::FETCH_COLUMN);
     <select name="tarjeta_debito_id">
         <option value="">Ninguna</option>
         <?php foreach ($tarjetas_debito as $d): ?>
-            <option value="<?= $d['id'] ?>">
+            <option value="<?= htmlspecialchars((string)($d['id']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>">
                 <?= htmlspecialchars($d['nombre']) ?>
             </option>
         <?php endforeach; ?>

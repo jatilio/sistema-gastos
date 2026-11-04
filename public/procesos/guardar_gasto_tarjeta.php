@@ -1,9 +1,11 @@
 <?php
+require_once __DIR__ . '/../../config/seguridad_web.php';
+
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
 
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+    if(session_status()!==PHP_SESSION_ACTIVE)session_start();
 }
 
 require_once __DIR__ . '/../../config/db.php';

@@ -1,6 +1,8 @@
 <?php
+require_once __DIR__ . '/../../config/seguridad_web.php';
+
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+    if(session_status()!==PHP_SESSION_ACTIVE)session_start();
 }
 
 if (empty($_SESSION['usuario_id'])) {
@@ -52,6 +54,14 @@ if (isset($_POST['validado'])) {
    2. SI NO ES VALIDADO → ES UN PAGO NORMAL
 ============================================================ */
 
+// El monto es opcional para formularios anteriores. Se guarda con el pago en un único UPDATE.
+$montoCorregido=null;
+if(array_key_exists('amount',$_POST)){
+ $valorMonto=$_POST['amount'];
+ if(!is_string($valorMonto)||!preg_match('/^\d{1,8}(?:\.\d{1,2})?$/D',trim($valorMonto))||(float)$valorMonto<=0){http_response_code(422);exit('Ingresa un monto mayor que cero, con un máximo de dos decimales.');}
+ $montoCorregido=trim($valorMonto);
+}
+
 // CAPTURAR CAMPOS
 $payment_date = $_POST['payment_date'] ?? null;
 $confirmation = $_POST['confirmation'] ?? null;
@@ -93,6 +103,7 @@ $sql = "
     UPDATE gastos
     SET 
         pagado = 'Si',
+        amount = COALESCE(:amount, amount),
         payment_date = :payment_date,
         confirmation = :confirmation,
         banco_pago = :banco_pago,
@@ -108,6 +119,7 @@ $sql = "
 $stmt = $pdo->prepare($sql);
 
 $stmt->execute([
+    'amount' => $montoCorregido,
     'payment_date' => $payment_date,
     'confirmation' => $confirmation,
     'banco_pago'   => $banco_pago,

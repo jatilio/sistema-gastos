@@ -1,8 +1,10 @@
 <?php
-ini_set('display_errors', 1);
+require_once __DIR__ . '/../config/seguridad_web.php';
+
+ini_set('display_errors', 0);
 error_reporting(E_ALL);
 
-session_start();
+if(session_status()!==PHP_SESSION_ACTIVE)session_start();
 if (!isset($_SESSION['usuario_id'])) {
     exit("No hay sesión activa");
 }
@@ -12,8 +14,8 @@ require_once __DIR__ . '/../config/db.php';
 
 use Dompdf\Dompdf;
 
-$month = $_GET['month'] ?? date("m");
-$year  = $_GET['year'] ?? date("Y");
+$month = (int)($_GET['month'] ?? date('m'));
+$year = (int)($_GET['year'] ?? date('Y'));
 $tipo  = $_GET['tipo'] ?? '';
 $usuario_id = $_SESSION['usuario_id'];
 
@@ -171,13 +173,13 @@ $total_adicionales = 0;
 <?php $i=1; foreach ($fijos as $f): ?>
 <tr class="<?= strtoupper($f['pagado']) === 'NO' ? 'unpaid' : '' ?>">
     <td><?= $i++ ?></td>
-    <td><?= htmlspecialchars($f['descripcion']) ?></td>
+    <td><?= htmlspecialchars((string)($f['descripcion']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
     <td><?= date("d/m/Y", strtotime($f['due_date'])) ?></td>
     <td>$<?= number_format($f['amount'],2) ?></td>
-    <td><?= $f['payment_date'] ?: '-' ?></td>
-    <td><?= $f['pagado'] ?></td>
-    <td><?= $f['confirmation'] ?: '-' ?></td>
-    <td><?= $f['banco_pago'] ?: '-' ?></td>
+    <td><?= htmlspecialchars((string)($f['payment_date'] ?: '-'),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+    <td><?= htmlspecialchars((string)($f['pagado']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+    <td><?= htmlspecialchars((string)($f['confirmation'] ?: '-'),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+    <td><?= htmlspecialchars((string)($f['banco_pago'] ?: '-'),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
 </tr>
 <?php 
 if (strtoupper($f['pagado']) === 'SI') {
@@ -212,12 +214,12 @@ endforeach; ?>
 <?php $i=1; foreach ($adicionales as $a): ?>
 <tr>
     <td><?= $i++ ?></td>
-    <td><?= htmlspecialchars($a['descripcion']) ?></td>
+    <td><?= htmlspecialchars((string)($a['descripcion']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
     <td><?= date("d/m/Y", strtotime($a['fecha'])) ?></td>
-    <td><?= htmlspecialchars($a['categoria']) ?></td>
-    <td><?= $a['cantidad'] ?></td>
+    <td><?= htmlspecialchars((string)($a['categoria']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+    <td><?= htmlspecialchars((string)($a['cantidad']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
     <td>$<?= number_format($a['total'],2) ?></td>
-    <td><?= htmlspecialchars($a['tarjeta']) ?></td>
+    <td><?= htmlspecialchars((string)($a['tarjeta']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
 </tr>
 <?php 
 $total_adicionales += $a['total'];

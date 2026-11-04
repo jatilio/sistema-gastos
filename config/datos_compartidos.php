@@ -10,7 +10,8 @@ function resolverDatosFinanzas(PDO $pdo): void {
     $nombre=$pdo->prepare("SELECT COALESCE(NULLIF(TRIM(nombre), ''),usuario) FROM usuarios WHERE id=?");
     $nombre->execute([$identidad]);
     $visible=$nombre->fetchColumn();
-    if($visible!==false)$_SESSION['usuario_nombre']=$visible;
+    if($visible===false){$_SESSION=[];http_response_code(401);exit('La sesión ya no es válida. Vuelve a ingresar.');}
+    $_SESSION['usuario_nombre']=$visible;
     $_SESSION['usuario_autenticado_id']=$identidad;
     $_SESSION['usuario_id']=$propietario===false?$identidad:(int)$propietario;
     $contexto=$pdo->prepare('SET @finanzas_actor=?, @finanzas_actor_nombre=?, @finanzas_propietario=?');

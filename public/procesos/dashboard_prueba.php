@@ -1,11 +1,13 @@
 <?php
+require_once __DIR__ . '/../../config/seguridad_web.php';
+
 
 
 // ===============================
 // 1. VALIDAR SESIÓN
 // ===============================
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+    if(session_status()!==PHP_SESSION_ACTIVE)session_start();
 }
 
 require_once dirname(__DIR__, 2) . '/config/db.php';
@@ -487,15 +489,15 @@ $distribucionAnalisis = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </div>
 <!-- 1. Variables PHP convertidas a JS -->
 <script>
-const labelsCategorias = <?= json_encode($labels_cat) ?>;
-const totalesCategorias = <?= json_encode($totales_cat) ?>;
+const labelsCategorias = <?= finanzasJson($labels_cat) ?>;
+const totalesCategorias = <?= finanzasJson($totales_cat) ?>;
 
-const labelsLine = <?= json_encode($labels) ?>;
-const dataIngresos = <?= json_encode($data_ing) ?>;
-const dataGastos = <?= json_encode($data_gas) ?>;
+const labelsLine = <?= finanzasJson($labels) ?>;
+const dataIngresos = <?= finanzasJson($data_ing) ?>;
+const dataGastos = <?= finanzasJson($data_gas) ?>;
 
-const labelsAdic = <?= json_encode($labels_adic) ?>;
-const totalesAdic = <?= json_encode($totales_adic) ?>;
+const labelsAdic = <?= finanzasJson($labels_adic) ?>;
+const totalesAdic = <?= finanzasJson($totales_adic) ?>;
 </script>
 
 <!-- 2. Chart.js -->

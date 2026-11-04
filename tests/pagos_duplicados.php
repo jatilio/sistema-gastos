@@ -9,16 +9,18 @@ function enviarPagoPrueba(PDO $pdo,array $datos):string{
  $_SESSION=['usuario_id'=>3];$_POST=$datos;$_SERVER['REQUEST_METHOD']='POST';
  $codigo=file_get_contents(__DIR__.'/../public/gastos/ingresar_guardar.php');
  $codigo=preg_replace('/^<\?php\s*/','',$codigo);
+ $codigo=preg_replace("~require_once __DIR__\s*\.\s*['\"][^'\"]*seguridad_web\.php['\"];~",'', $codigo);
  $codigo=str_replace('include __DIR__ . "/../../config/db.php";','',$codigo);
  $codigo=str_replace("require_once dirname(__DIR__,2).'/config/saldos_finanzas.php';",'',$codigo);
  $codigo=preg_replace('/\bexit\s*(\([^;]*\))?\s*;/','throw new FinPruebaPago();',$codigo);
  http_response_code(200);try{eval($codigo);}catch(FinPruebaPago $e){}
  return $_SESSION['aviso_pago']??'';
 }
-$datos=['id'=>1,'payment_date'=>'2026-10-29','confirmation'=>'PRIMERA','banco_pago'=>'MIDFLORIDA','notes'=>'Original'];
+$datos=['id'=>1,'amount'=>'12.75','payment_date'=>'2026-10-29','confirmation'=>'PRIMERA','banco_pago'=>'MIDFLORIDA','notes'=>'Original'];
 $aviso=enviarPagoPrueba($pdo,$datos);if(!str_contains($aviso,'correctamente'))throw new RuntimeException('Primer pago no guardado');
 $primero=$pdo->query('SELECT * FROM gastos WHERE id=1')->fetch();
-$datos['confirmation']='SEGUNDA';$datos['payment_date']='2026-10-30';$datos['notes']='No debe reemplazar';
+if($primero['amount']!=='12.75')throw new RuntimeException('No se guardó el monto corregido');
+$datos['amount']='99.00';$datos['confirmation']='SEGUNDA';$datos['payment_date']='2026-10-30';$datos['notes']='No debe reemplazar';
 $aviso=enviarPagoPrueba($pdo,$datos);$segundo=$pdo->query('SELECT * FROM gastos WHERE id=1')->fetch();
 if($primero!==$segundo||!str_contains($aviso,'ya está pagado'))throw new RuntimeException('Segundo pago modificó datos');
 $pdo->exec("INSERT INTO gastos (id,usuario_id,descripcion,amount,pagado) VALUES (3,3,'Efectivo',10,'No'),(4,3,'Inválido',10,'No')");
@@ -26,9 +28,14 @@ enviarPagoPrueba($pdo,['id'=>3,'metodo_pago'=>'Efectivo','payment_date'=>'2026-1
 if($pdo->query('SELECT metodo_pago FROM gastos WHERE id=3')->fetchColumn()!=='efectivo')throw new RuntimeException('Efectivo ignorado');
 enviarPagoPrueba($pdo,['id'=>4,'metodo_pago'=>'Tarjeta Crédito','tarjeta_credito_id'=>999999,'payment_date'=>'2026-10-29']);
 if(http_response_code()!==422||$pdo->query('SELECT pagado FROM gastos WHERE id=4')->fetchColumn()!=='No')throw new RuntimeException('Medio inválido aceptado');
+foreach(['-1','0','abc','1.234','1e3','100000000',[]] as $invalido){
+ enviarPagoPrueba($pdo,['id'=>4,'metodo_pago'=>'Efectivo','payment_date'=>'2026-10-29','amount'=>$invalido]);
+ $sinCambios=$pdo->query('SELECT amount,pagado FROM gastos WHERE id=4')->fetch();
+ if(http_response_code()!==422||$sinCambios['amount']!=='10.00'||$sinCambios['pagado']!=='No')throw new RuntimeException('Monto inválido aceptado o gasto modificado');
+}
 enviarPagoPrueba($pdo,['id'=>4,'metodo_pago'=>'Efectivo','payment_date'=>'2026-02-30']);
 if(http_response_code()!==422)throw new RuntimeException('Fecha inválida aceptada');
 $datos['id']=2;enviarPagoPrueba($pdo,$datos);
 if(http_response_code()!==404||$pdo->query('SELECT pagado FROM gastos WHERE id=2')->fetchColumn()!=='No')throw new RuntimeException('Pago ajeno permitido');
 enviarPagoPrueba($pdo,['id'=>1,'validado'=>1]);if($pdo->query('SELECT validado FROM gastos WHERE id=1')->fetchColumn()!=1)throw new RuntimeException('Validación bloqueada');
-session_destroy();ob_end_clean();echo "OK: primer pago, segundo pago bloqueado sin sobrescribir fecha ni confirmación, propietario y validación. Solo tabla temporal.\n";
+session_destroy();ob_end_clean();echo "OK: monto corregido, rechazo de montos inválidos, formularios anteriores compatibles, segundo pago bloqueado sin sobrescribir monto, fecha ni confirmación, propietario y validación. Solo tabla temporal.\n";

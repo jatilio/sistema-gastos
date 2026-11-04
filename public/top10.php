@@ -1,5 +1,7 @@
 <?php
-require '../config/conexion.php';
+require_once __DIR__ . '/../config/seguridad_web.php';
+
+require_once __DIR__.'/../config/conexion.php';
 
 // Obtener año y mes seleccionados
 $anio = $_GET['anio'] ?? date('Y');
@@ -20,7 +22,7 @@ FROM (
             ORDER BY SUM(amount) DESC
         ) AS ranking
     FROM gastos
-    WHERE tipo = 'Adicional'
+    WHERE tipo = 'Adicional' AND usuario_id = ?
       AND YEAR(created_at) = ?
       AND MONTH(created_at) = ?
     GROUP BY mes, descripcion, categoria
@@ -30,7 +32,7 @@ ORDER BY total_mes DESC;
 ";
 
 $stmt = $pdo->prepare($sql);
-$stmt->execute([$anio, $mes]);
+$stmt->execute([$_SESSION['usuario_id'],$anio,$mes]);
 $rows = $stmt->fetchAll();
 ?>
 
@@ -85,13 +87,13 @@ $rows = $stmt->fetchAll();
 
     <?php foreach ($rows as $r): ?>
     <tr>
-        <td><?= $r['mes'] ?></td>
-        <td><?= $r['descripcion'] ?></td>
-        <td><?= $r['categoria'] ?></td>
-        <td><?= $r['veces_en_el_mes'] ?></td>
+        <td><?= htmlspecialchars((string)($r['mes']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+        <td><?= htmlspecialchars((string)($r['descripcion']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+        <td><?= htmlspecialchars((string)($r['categoria']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+        <td><?= htmlspecialchars((string)($r['veces_en_el_mes']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
         <td>$<?= number_format($r['total_mes'], 2) ?></td>
         <td>
-            <a href="detalle_gasto.php?descripcion=<?= urlencode($r['descripcion']) ?>&mes=<?= $r['mes'] ?>">
+            <a href="detalle_gasto.php?descripcion=<?= urlencode($r['descripcion']) ?>&mes=<?= htmlspecialchars((string)($r['mes']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>">
                 Ver detalle
             </a>
         </td>

@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../../config/seguridad_web.php';
+
 require_once __DIR__.'/../../config/seguridad_formularios.php';
 $propietario=exigirSesionFinanzas();$id=filter_var($_GET['id']??null,FILTER_VALIDATE_INT);
 $q=$pdo->prepare('SELECT * FROM gastos WHERE id=? AND usuario_id=? AND tarjeta_id IS NOT NULL');$q->execute([$id,$propietario]);$gasto=$q->fetch(PDO::FETCH_ASSOC);

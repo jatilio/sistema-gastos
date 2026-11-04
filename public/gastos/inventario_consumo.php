@@ -1,5 +1,7 @@
 <?php
-session_start();
+require_once __DIR__ . '/../../config/seguridad_web.php';
+
+if(session_status()!==PHP_SESSION_ACTIVE)session_start();
 require_once dirname(__DIR__, 2) . '/config/db.php';
 
 // Validar sesión
@@ -121,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="form-card">
     <h3><?= htmlspecialchars($item['nombre']) ?></h3>
-    <p><strong>Cantidad actual:</strong> <?= $item['cantidad_actual'] . " " . $item['unidad'] ?></p>
+    <p><strong>Cantidad actual:</strong> <?= htmlspecialchars($item['cantidad_actual'] . ' ' . $item['unidad'],ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></p>
 
     <form method="POST">
         <label>Cantidad a consumir:</label>

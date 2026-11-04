@@ -1,7 +1,9 @@
 <?php
+require_once __DIR__ . '/../config/seguridad_web.php';
+
 // Iniciar sesión si no está iniciada
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+    if(session_status()!==PHP_SESSION_ACTIVE)session_start();
 }
 ?>
 <!DOCTYPE html>

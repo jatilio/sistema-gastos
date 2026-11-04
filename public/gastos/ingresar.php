@@ -1,6 +1,8 @@
 <?php
+require_once __DIR__ . '/../../config/seguridad_web.php';
+
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+    if(session_status()!==PHP_SESSION_ACTIVE)session_start();
 }
 
 include __DIR__ . "/../../config/db.php";
@@ -72,7 +74,7 @@ $tarjetas = $stmtTar->fetchAll(PDO::FETCH_ASSOC);
 <meta charset="UTF-8">
 <title>Ingresar Gastos</title>
 
-<link rel="stylesheet" href="../assets/css/ingresar.css">
+<link rel="stylesheet" href="/assets/css/ingresar.css">
 
 <style>
 .inline-input {
@@ -99,6 +101,7 @@ $tarjetas = $stmtTar->fetchAll(PDO::FETCH_ASSOC);
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="/assets/css/finance-responsive.css?v=1">
+<link rel="stylesheet" href="/assets/css/ingresar-mobile.css?v=2">
 <script src="/assets/js/finance-interface.js?v=1"></script>
 <script src="/assets/js/finance-language.js?v=1"></script>
 </head>
@@ -119,12 +122,13 @@ $tarjetas = $stmtTar->fetchAll(PDO::FETCH_ASSOC);
 
 <?php if(isset($_SESSION['aviso_pago'])): ?><p role="status" style="padding:14px;border:1px solid #91badd;border-radius:8px;background:#edf6ff;color:#17496f"><?= htmlspecialchars($_SESSION['aviso_pago'],ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></p><?php unset($_SESSION['aviso_pago']);endif; ?>
 <h2>Ingresar Gastos</h2>
+<section class="payment-page" aria-label="Ingresar gastos">
 
-<form method="GET" action="/gastos/ingresar.php"
+<form class="payment-filters" method="GET" action="/gastos/ingresar.php"
       style="margin-bottom: 20px; display:flex; gap:10px; align-items:center;">
 
-    <label>Mes:</label>
-    <select name="mes">
+    <label for="payment-month">Mes:</label>
+    <select id="payment-month" name="mes">
         <?php for ($m = 1; $m <= 12; $m++): ?>
             <option value="<?= $m ?>" <?= ($m == $mes) ? 'selected' : '' ?>>
                 <?= date("F", mktime(0,0,0,$m,1)) ?>
@@ -132,8 +136,8 @@ $tarjetas = $stmtTar->fetchAll(PDO::FETCH_ASSOC);
         <?php endfor; ?>
     </select>
 
-    <label>Año:</label>
-    <select name="anio">
+    <label for="payment-year">Año:</label>
+    <select id="payment-year" name="anio">
         <?php for ($a = date("Y") - 5; $a <= date("Y") + 1; $a++): ?>
             <option value="<?= $a ?>" <?= ($a == $anio) ? 'selected' : '' ?>>
                 <?= $a ?>
@@ -145,118 +149,59 @@ $tarjetas = $stmtTar->fetchAll(PDO::FETCH_ASSOC);
 
 </form>
 
-<div class="table-container">
-<table>
-    <tr>
-        <th>#</th>
-        <th>Descripción</th>
-        <th>Fecha Vencimiento</th>
-        <th>Monto</th>
-        <th>Pagado</th>
-        <th>Fecha Pago</th>
-        <th>Confirmación</th>
-        <th>Tarjeta</th>
-        <th>Notes</th>
-        <th>Acción</th>
-        <th>Validado</th> <!-- SOLO AGREGAMOS ESTA COLUMNA -->
-    </tr>
-
-<?php 
-$i = 1;
-foreach ($result as $row): 
-    $clase = ($row['pagado'] == 'Si') ? "pagado" : "nopagado";
-?>
-
-<form id="form<?= $row['id'] ?>" action="/gastos/ingresar_guardar.php" method="POST">
-<tr id="fila<?= $row['id'] ?>" class="<?= $clase ?>">
-
-    <input type="hidden" name="id" value="<?= $row['id'] ?>">
-
-    <td><?= $i++ ?></td>
-    <td><?= htmlspecialchars($row['descripcion']) ?></td>
-    <td><?= $row['due_date'] ?></td>
-    <td>$<?= number_format($row['amount'], 2) ?></td>
-    <td><?= $row['pagado'] ?></td>
-
-    <td id="fp<?= $row['id'] ?>"><?= $row['payment_date'] ?></td>
-    <td id="cf<?= $row['id'] ?>"><?= $row['confirmation'] ?></td>
-    <td id="tp<?= $row['id'] ?>"><?= $row['banco_pago'] ?></td>
-    <td id="nt<?= $row['id'] ?>"><?= $row['notes'] ?></td>
-
-    <td id="ac<?= $row['id'] ?>">
-        <?php if ($row['pagado'] == 'No'): ?>
-            <button type="button" class="btn-pagar" onclick="habilitar(<?= $row['id'] ?>)">Pagar</button>
-        <?php else: ?>
-            ✔
-        <?php endif; ?>
-    </td>
-
-    <!-- VALIDADO (SOLO AGREGO ESTO, NO TOCA NADA MÁS) -->
-    <td>
-        <form action="/gastos/ingresar_guardar.php" method="POST">
-            <input type="hidden" name="id" value="<?= $row['id'] ?>">
-            <input type="hidden" name="mes" value="<?= $mes ?>">
-            <input type="hidden" name="anio" value="<?= $anio ?>">
-
-            <input type="checkbox"
-                   name="validado"
-                   value="1"
-                   <?= ($row['validado'] == 1) ? 'checked' : '' ?>
-                   onchange="this.form.submit();">
-        </form>
-    </td>
-
-</tr>
-</form>
-
+<div class="finance-table-scroll payment-list">
+<table class="payments-table" aria-label="Pagos del mes">
+<thead><tr><th>#</th><th>Descripción</th><th>Fecha Vencimiento</th><th>Monto</th><th>Pagado</th><th>Fecha Pago</th><th>Confirmación</th><th>Tarjeta</th><th>Notes</th><th>Acción</th><th>Validado</th></tr></thead>
+<tbody>
+<?php $i=1; foreach($result as $row): $id=(int)$row['id']; $pendiente=$row['pagado']==='No'; ?>
+<tr id="fila<?= $id ?>" class="<?= $pendiente?'nopagado':'pagado' ?>">
+<td class="payment-number"><?= $i++ ?></td>
+<td class="payment-name"><strong><?= htmlspecialchars($row['descripcion'],ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></strong></td>
+<td><span class="payment-label">Fecha Vencimiento</span><span class="payment-value"><?= htmlspecialchars($row['due_date'],ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></span></td>
+<td class="payment-amount"><span class="payment-label">Monto</span><strong class="payment-value" id="monto<?= $id ?>" data-amount="<?= htmlspecialchars((string)$row['amount'],ENT_QUOTES,'UTF-8') ?>">$<?= number_format($row['amount'],2) ?></strong></td>
+<td><span class="payment-label">Pagado</span><span class="payment-value"><?= htmlspecialchars($row['pagado'],ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></span></td>
+<?php foreach(['fp'=>['Fecha Pago','payment_date'],'cf'=>['Confirmación','confirmation'],'tp'=>['Tarjeta','banco_pago'],'nt'=>['Notes','notes']] as $clave=>$campo): ?>
+<td><span class="payment-label"><?= $campo[0] ?></span><span class="payment-value" id="<?= $clave.$id ?>"><?= htmlspecialchars((string)($row[$campo[1]]??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></span></td>
 <?php endforeach; ?>
-</table>
+<td class="payment-action">
+<form id="form<?= $id ?>" action="/gastos/ingresar_guardar.php" method="POST">
+<input type="hidden" name="id" value="<?= $id ?>">
+<input type="hidden" name="mes" value="<?= $mes ?>"><input type="hidden" name="anio" value="<?= $anio ?>">
+<?php if($pendiente): ?><button type="button" class="btn-pagar" onclick="event.preventDefault(); habilitar(<?= $id ?>)">Pagar</button><?php else: ?><span>✔</span><?php endif; ?>
+</form>
+</td>
+<td class="payment-validation"><form action="/gastos/ingresar_guardar.php" method="POST">
+<input type="hidden" name="id" value="<?= $id ?>"><input type="hidden" name="mes" value="<?= $mes ?>"><input type="hidden" name="anio" value="<?= $anio ?>">
+<input type="hidden" name="validado" value="0">
+<label><input type="checkbox" name="validado" value="1" <?= $row['validado']==1?'checked':'' ?> onchange="this.form.requestSubmit()"><span>Validado</span></label>
+</form></td>
+</tr>
+<?php endforeach; ?>
+<?php if(!$result): ?><tr class="payment-empty"><td colspan="11">No hay gastos para este período.</td></tr><?php endif; ?>
+</tbody></table>
 </div>
+</section>
 
 <script>
+const tarjetasPagoNombres = <?= finanzasJson(array_column($tarjetas, 'nombre_tarjeta')) ?>;
 function habilitar(id) {
-
-    const form = document.getElementById("form" + id);
-
-    document.getElementById("fp" + id).innerHTML = "";
-    document.getElementById("cf" + id).innerHTML = "";
-    document.getElementById("tp" + id).innerHTML = "";
-    document.getElementById("nt" + id).innerHTML = "";
-
-    form.innerHTML += `
-        <input type="hidden" name="id" value="${id}">
-        <input type="hidden" name="row" value="${id}">
-
-        <input type="date" name="payment_date" id="payment_date_${id}" style="display:none;">
-        <input type="text" name="confirmation" id="confirmation_${id}" style="display:none;">
-        <select name="banco_pago" id="banco_pago_${id}" style="display:none;">
-            <option value="">Seleccione...</option>
-            <?php foreach ($tarjetas as $t): ?>
-                <option value="<?= $t['nombre_tarjeta'] ?>"><?= $t['nombre_tarjeta'] ?></option>
-            <?php endforeach; ?>
-        </select>
-        <input type="text" name="notes" id="notes_${id}" style="display:none;">
-    `;
-
-    document.getElementById("fp" + id).innerHTML =
-        '<input class="inline-input" type="date" onchange="document.getElementById(\'payment_date_'+id+'\').value=this.value">';
-
-    document.getElementById("cf" + id).innerHTML =
-        '<input class="inline-input" type="text" onchange="document.getElementById(\'confirmation_'+id+'\').value=this.value">';
-
-    let html = `<select class="inline-input" onchange="document.getElementById('banco_pago_${id}').value=this.value">
-                    <option value="">Seleccione...</option>`;
-    <?php foreach ($tarjetas as $t): ?>
-        html += `<option value="<?= $t['nombre_tarjeta'] ?>"><?= $t['nombre_tarjeta'] ?></option>`;
-    <?php endforeach; ?>
-    html += `</select>`;
-    document.getElementById("tp" + id).innerHTML = html;
-
-    document.getElementById("nt" + id).innerHTML =
-        '<input class="inline-input" type="text" onchange="document.getElementById(\'notes_'+id+'\').value=this.value">';
-
-    document.getElementById("ac" + id).innerHTML =
-        '<button class="btn-guardar" type="button" onclick="document.getElementById(\'form'+id+'\').submit()">Guardar</button>';
+ const form = document.getElementById('form'+id);
+ if (!form || form.dataset.editando) return;
+ form.dataset.editando = '1';
+ const campos = [['monto','amount','number','Monto'],['fp','payment_date','date','Fecha Pago'],['cf','confirmation','text','Confirmación'],['tp','banco_pago','select','Tarjeta'],['nt','notes','text','Notes']];
+ campos.forEach(([prefijo,nombre,tipo,etiqueta]) => {
+  const control = document.createElement(tipo === 'select' ? 'select' : 'input');
+  if(tipo !== 'select') control.type = tipo;
+  else { control.add(new Option('Seleccione...','')); tarjetasPagoNombres.forEach(n => control.add(new Option(n,n))); }
+  control.name=nombre; control.className='inline-input'; control.setAttribute('form',form.id);
+  control.setAttribute('aria-label',etiqueta); control.autocomplete='off';
+  if(nombre==='payment_date') control.required=true;
+  if(nombre==='amount') { control.value=document.getElementById('monto'+id).dataset.amount; control.min='0.01'; control.max='99999999.99'; control.step='0.01'; control.required=true; control.inputMode='decimal'; }
+  document.getElementById(prefijo+id).replaceChildren(control);
+ });
+ const boton=form.querySelector('button');
+ boton.textContent='Guardar'; boton.className='btn-guardar'; boton.onclick=null; boton.type='submit';
+ document.getElementById('fp'+id).querySelector('input').focus();
 }
 </script>
 

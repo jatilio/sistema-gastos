@@ -1,6 +1,8 @@
 <?php
+require_once __DIR__ . '/../../config/seguridad_web.php';
+
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+    if(session_status()!==PHP_SESSION_ACTIVE)session_start();
 }
 
 require_once __DIR__ . '/../../config/db.php';
@@ -12,8 +14,8 @@ if (!$usuario_id) {
 }
 
 // Filtros
-$month = $_GET['month'] ?? date('m');
-$year  = $_GET['year'] ?? date('Y');
+$month = (int)($_GET['month'] ?? date('m'));
+$year = (int)($_GET['year'] ?? date('Y'));
 
 // ===============================
 //  TOTALES POR MÉTODO DE PAGO
@@ -165,13 +167,13 @@ $gastos = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
                         <td>
                             <?php if ($g['metodo_pago']): ?>
-                                <?= ucfirst($g['metodo_pago']) ?>
+                                <?= htmlspecialchars(ucfirst((string)($g['metodo_pago'] ?? '')),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>
                             <?php else: ?>
                                 <span class="badge-warning">Sin método</span>
                             <?php endif; ?>
                         </td>
 
-                        <td><?= $g['tipo'] ?></td>
+                        <td><?= htmlspecialchars((string)($g['tipo']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
                         <td><?= $g['pagado'] === 'Si' ? '✔' : 'No' ?></td>
                         <td>$<?= number_format($g['amount'], 2) ?></td>
                     </tr>

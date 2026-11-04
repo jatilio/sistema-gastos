@@ -1,8 +1,11 @@
 <?php
-require '../config/conexion.php';
+require_once __DIR__ . '/../config/seguridad_web.php';
 
-$descripcion = $_GET['descripcion'];
-$mes = $_GET['mes'];
+require_once __DIR__.'/../config/conexion.php';
+
+$descripcion = is_string($_GET['descripcion']??null)?$_GET['descripcion']:'';
+$mes = is_string($_GET['mes']??null)?$_GET['mes']:date('Y-m');
+if(!preg_match('/^\d{4}-(0[1-9]|1[0-2])$/D',$mes)){http_response_code(422);exit('Mes inválido.');}
 
 $sql = "
 SELECT 
@@ -18,14 +21,14 @@ SELECT
     banco_pago,
     notes
 FROM gastos
-WHERE tipo = 'Adicional'
+WHERE tipo = 'Adicional' AND usuario_id = ?
   AND descripcion = ?
   AND DATE_FORMAT(created_at, '%Y-%m') = ?
 ORDER BY created_at DESC
 ";
 
 $stmt = $pdo->prepare($sql);
-$stmt->execute([$descripcion, $mes]);
+$stmt->execute([$_SESSION['usuario_id'],$descripcion,$mes]);
 $detalles = $stmt->fetchAll();
 ?>
 
@@ -58,13 +61,13 @@ $detalles = $stmt->fetchAll();
 
     <?php foreach ($detalles as $d): ?>
     <tr>
-        <td><?= $d['created_at'] ?></td>
+        <td><?= htmlspecialchars((string)($d['created_at']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
         <td>$<?= number_format($d['amount'], 2) ?></td>
-        <td><?= $d['categoria'] ?></td>
-        <td><?= $d['metodo_pago'] ?></td>
-        <td><?= $d['banco'] ?></td>
-        <td><?= $d['banco_pago'] ?></td>
-        <td class="notes"><?= $d['notes'] ?></td>
+        <td><?= htmlspecialchars((string)($d['categoria']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+        <td><?= htmlspecialchars((string)($d['metodo_pago']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+        <td><?= htmlspecialchars((string)($d['banco']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+        <td><?= htmlspecialchars((string)($d['banco_pago']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+        <td class="notes"><?= htmlspecialchars((string)($d['notes']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
     </tr>
     <?php endforeach; ?>
 

@@ -1,5 +1,7 @@
 <?php
-session_start();
+require_once __DIR__ . '/../../config/seguridad_web.php';
+
+if(session_status()!==PHP_SESSION_ACTIVE)session_start();
 require_once dirname(__DIR__, 2) . '/config/db.php';
 
 // Validar sesión
@@ -117,12 +119,12 @@ $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
         ?>
 
         <tr>
-            <td><?= $row['nombre'] ?></td>
-            <td><?= $row['categoria'] ?></td>
-            <td><?= $row['cantidad_actual'] ?></td>
-            <td><?= $row['cantidad_minima'] ?></td>
+            <td><?= htmlspecialchars((string)($row['nombre']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+            <td><?= htmlspecialchars((string)($row['categoria']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+            <td><?= htmlspecialchars((string)($row['cantidad_actual']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+            <td><?= htmlspecialchars((string)($row['cantidad_minima']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
             <td><?= round($porcentaje, 0) ?>%</td>
-            <td><?= $row['ubicacion'] ?></td>
+            <td><?= htmlspecialchars((string)($row['ubicacion']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
             <td><?= $fecha ?></td>
             <td><?= $estado ?></td>
         </tr>

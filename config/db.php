@@ -15,7 +15,8 @@ $options = [
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 } catch (Exception $e) {
-    die('Error de conexión: ' . $e->getMessage());
+    error_log('Conexión Finanzas: '.$e->getMessage());
+    http_response_code(503);exit('No se pudo conectar con el servicio. Inténtalo más tarde.');
 }
 
 require_once __DIR__.'/datos_compartidos.php';

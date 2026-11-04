@@ -1,5 +1,7 @@
 <?php
-session_start(); // ← ESTO ES OBLIGATORIO
+require_once __DIR__ . '/../config/seguridad_web.php';
+
+if(session_status()!==PHP_SESSION_ACTIVE)session_start(); // ← ESTO ES OBLIGATORIO
 
 if (!isset($_SESSION['usuario_id'])) {
     die("No hay sesión activa. No se puede sincronizar.");
@@ -50,17 +52,17 @@ foreach ($programados as $p) {
                 $updateG = $pdo->prepare("
                     UPDATE gastos
                     SET mantenimiento_id = ?
-                    WHERE id = ?
+                    WHERE id = ? AND usuario_id = ?
                 ");
-                $updateG->execute([$p['id'], $g['id']]);
+                $updateG->execute([$p['id'],$g['id'],$usuario]);
 
                 // Actualizar mantenimiento_pagos → marcar como pagado
                 $updateP = $pdo->prepare("
                     UPDATE mantenimiento_pagos
                     SET pago = 'Si', payment_date = ?
-                    WHERE id = ?
+                    WHERE id = ? AND usuario_id = ?
                 ");
-                $updateP->execute([$g['payment_date'], $p['id']]);
+                $updateP->execute([$g['payment_date'],$p['id'],$usuario]);
             }
         }
     }

@@ -1,6 +1,8 @@
 <?php
+require_once __DIR__ . '/../../config/seguridad_web.php';
+
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+    if(session_status()!==PHP_SESSION_ACTIVE)session_start();
 }
 
 require_once dirname(__DIR__, 2) . '/config/db.php';
@@ -97,5 +99,5 @@ try {
 
 } catch (Exception $e) {
     if ($pdo->inTransaction()) { $pdo->rollBack(); }
-    echo "Error al guardar los gastos adicionales: " . $e->getMessage();
+    error_log('Guardar gastos: '.$e->getMessage());http_response_code(422);echo 'No se pudo guardar el gasto. Revisa los datos e inténtalo de nuevo.';
 }

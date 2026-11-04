@@ -17,6 +17,7 @@ final class FinSolicitudPlan extends Error {}
 function guardarPruebaPlan(PDO $pdo):void {
  $source=file_get_contents(dirname(__DIR__).'/public/mantenimiento_pagos_guardar.php');
  $source=preg_replace('/^<\?php\s*/','',$source);
+ $source=preg_replace("~require_once __DIR__\s*\.\s*['\"][^'\"]*seguridad_web\.php['\"];~",'', $source);
  $source=str_replace(["require_once __DIR__.'/../config/db.php';","require_once __DIR__.'/../config/pagos_programados.php';"],'',$source);
  $source=preg_replace('/\bexit\s*(\([^;]*\))?\s*;/','throw new FinSolicitudPlan();',$source);
  try {eval($source);} catch(FinSolicitudPlan $e) {}

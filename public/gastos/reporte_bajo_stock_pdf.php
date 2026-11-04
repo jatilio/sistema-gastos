@@ -1,5 +1,7 @@
 <?php
-session_start();
+require_once __DIR__ . '/../../config/seguridad_web.php';
+
+if(session_status()!==PHP_SESSION_ACTIVE)session_start();
 require_once dirname(__DIR__, 2) . '/config/db.php';
 require_once dirname(__DIR__, 2) . '/vendor/autoload.php';
 
@@ -26,7 +28,7 @@ $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Dompdf
 $options = new Options();
-$options->set('isRemoteEnabled', true);
+$options->set('isRemoteEnabled', false);
 $options->set('defaultFont', 'Arial');
 $dompdf = new Dompdf($options);
 
@@ -94,6 +96,10 @@ foreach ($items as $row) {
     }
 
     // Agregar fila
+    $row['nombre'] = htmlspecialchars((string)($row['nombre'] ?? ''), ENT_QUOTES|ENT_SUBSTITUTE, 'UTF-8');
+    $row['categoria'] = htmlspecialchars((string)($row['categoria'] ?? ''), ENT_QUOTES|ENT_SUBSTITUTE, 'UTF-8');
+    $row['ubicacion'] = htmlspecialchars((string)($row['ubicacion'] ?? ''), ENT_QUOTES|ENT_SUBSTITUTE, 'UTF-8');
+
     $html .= "
     <tr>
         <td>{$correlativo}</td>

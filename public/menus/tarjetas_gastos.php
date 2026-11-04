@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../../config/seguridad_web.php';
+
 echo '<link rel="stylesheet" href="assets/css/tarjetas_gastos.css">';
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__.'/../../config/seguridad_formularios.php';
@@ -49,7 +51,7 @@ $gastos = $stmt2->fetchAll(PDO::FETCH_ASSOC);
                 <select name="tarjeta_id" required>
                     <option value="">Seleccione una tarjeta</option>
                     <?php foreach ($tarjetas as $t): ?>
-                        <option value="<?= $t['id'] ?>">
+                        <option value="<?= htmlspecialchars((string)($t['id']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>">
                             <?= htmlspecialchars($t['banco']) ?> — <?= htmlspecialchars($t['nombre_tarjeta']) ?>
                         </option>
                     <?php endforeach; ?>
@@ -112,7 +114,7 @@ $gastos = $stmt2->fetchAll(PDO::FETCH_ASSOC);
                         <td><?= $g['pagado'] === 'Si' ? '✔' : 'No' ?></td>
 
                         <td class="acciones">
-                            <a href="index.php?menu=editar_gasto_tarjeta&id=<?= $g['id'] ?>" class="btn-editar">Editar</a>
+                            <a href="index.php?menu=editar_gasto_tarjeta&id=<?= htmlspecialchars((string)($g['id']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>" class="btn-editar">Editar</a>
                             <form method="post" action="/procesos/eliminar_gasto_tarjeta.php" onsubmit="return confirm('¿Eliminar este gasto?')" style="display:inline"><input type="hidden" name="id" value="<?= (int)$g['id'] ?>"><input type="hidden" name="formulario_token" value="<?= $tokenTarjetas ?>"><button type="submit" class="btn-eliminar">Eliminar</button></form>
                         </td>
                     </tr>

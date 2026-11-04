@@ -1,5 +1,7 @@
 <?php
-session_start();
+require_once __DIR__ . '/../../config/seguridad_web.php';
+
+if(session_status()!==PHP_SESSION_ACTIVE)session_start();
 require_once dirname(__DIR__, 2) . '/config/db.php';
 
 // Validar sesión
@@ -118,9 +120,9 @@ $movimientos = $mov->fetchAll(PDO::FETCH_ASSOC);
                         <?php endif; ?>
                     </td>
 
-                    <td><?= $m['cantidad'] ?></td>
+                    <td><?= htmlspecialchars((string)($m['cantidad']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
                     <td><?= htmlspecialchars($m['notas']) ?></td>
-                    <td><?= $m['fecha'] ?></td>
+                    <td><?= htmlspecialchars((string)($m['fecha']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
                 </tr>
             <?php endforeach; ?>
         <?php endif; ?>

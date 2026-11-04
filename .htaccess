@@ -1,0 +1,2 @@
+# La raíz del sitio debe ser public/. La raíz del proyecto contiene archivos privados.
+Require all denied

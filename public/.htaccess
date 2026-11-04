@@ -1,0 +1,10 @@
+Options -Indexes
+DirectoryIndex index.php
+Require all granted
+<FilesMatch "(?i)(^\.|\.(sql|log|txt|ini|bak|zip|env|json)$)">
+Require all denied
+</FilesMatch>
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule ^assets/.*\.php$ - [F,L]
+</IfModule>

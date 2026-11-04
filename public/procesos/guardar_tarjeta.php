@@ -1,9 +1,11 @@
 <?php
+require_once __DIR__ . '/../../config/seguridad_web.php';
+
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
 
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+    if(session_status()!==PHP_SESSION_ACTIVE)session_start();
 }
 
 require_once __DIR__ . '/../../config/db.php';
@@ -73,13 +75,5 @@ try {
 
 } catch (PDOException $e) {
 
-    // Guardar error en archivo
-    file_put_contents(
-        __DIR__ . "/error_sql.txt",
-        date('Y-m-d H:i:s') . " ERROR SQL:\n" . $e->getMessage() . "\n\n",
-        FILE_APPEND
-    );
-
-    // Mostrar error en pantalla
-    die("ERROR SQL: " . $e->getMessage());
+    error_log('Registro tarjeta: '.$e->getMessage());http_response_code(422);exit('No se pudo guardar la tarjeta. Revisa los datos.');
 }

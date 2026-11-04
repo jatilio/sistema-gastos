@@ -1,10 +1,12 @@
 <?php
+require_once __DIR__ . '/../../config/seguridad_web.php';
+
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+    if(session_status()!==PHP_SESSION_ACTIVE)session_start();
 }
 
-require_once("../../config/db.php");
-require_once("../../vendor/autoload.php");
+require_once __DIR__.'/../../config/db.php';
+require_once __DIR__.'/../../vendor/autoload.php';
 
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -15,8 +17,8 @@ if (!$usuario_id) {
     die("No hay sesión activa.");
 }
 
-$month = $_GET['month'] ?? date('m');
-$year  = $_GET['year'] ?? date('Y');
+$month = (int)($_GET['month'] ?? date('m'));
+$year = (int)($_GET['year'] ?? date('Y'));
 
 // ===============================
 //  OBTENER DATOS
@@ -93,10 +95,10 @@ th {
     <tbody>
         <?php foreach ($gastos as $g): ?>
             <tr class="<?= !$g['metodo_pago'] ? 'sin-metodo' : '' ?>">
-                <td><?= htmlspecialchars($g['due_date']) ?></td>
-                <td><?= htmlspecialchars($g['descripcion']) ?></td>
-                <td><?= $g['metodo_pago'] ? ucfirst($g['metodo_pago']) : 'Sin método' ?></td>
-                <td><?= $g['tipo'] ?></td>
+                <td><?= htmlspecialchars((string)($g['due_date']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+                <td><?= htmlspecialchars((string)($g['descripcion']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+                <td><?= htmlspecialchars($g['metodo_pago'] ? ucfirst($g['metodo_pago']) : 'Sin método',ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+                <td><?= htmlspecialchars((string)($g['tipo']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
                 <td><?= $g['pagado'] === 'Si' ? '✔' : 'No' ?></td>
                 <td>$<?= number_format($g['amount'], 2) ?></td>
             </tr>
@@ -111,7 +113,7 @@ $html = ob_get_clean();
 //  GENERAR PDF
 // ===============================
 $options = new Options();
-$options->set('isRemoteEnabled', true);
+$options->set('isRemoteEnabled', false);
 
 $dompdf = new Dompdf($options);
 $dompdf->loadHtml($html);

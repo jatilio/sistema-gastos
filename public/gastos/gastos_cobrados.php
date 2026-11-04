@@ -1,6 +1,8 @@
 <?php
+require_once __DIR__ . '/../../config/seguridad_web.php';
+
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+    if(session_status()!==PHP_SESSION_ACTIVE)session_start();
 }
 
 include __DIR__ . "/../../config/db.php";
@@ -23,6 +25,7 @@ if (!isset($_GET['month']) && !isset($_GET['year'])) {
 // -----------------------------
 $sql = "
     SELECT 
+        g.id AS id,
         mp.id AS mantenimiento_id,
         mp.descripcion,
         mp.due_date,
@@ -151,29 +154,32 @@ $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php $clase = ($row['pagado'] == 'Si') ? "pagado" : "nopagado"; ?>
 
         <tr class="<?= $clase ?>">
-            <td><?= $row['mantenimiento_id'] ?></td>
+            <td><?= htmlspecialchars((string)($row['mantenimiento_id']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
             <td><?= htmlspecialchars($row['descripcion']) ?></td>
-            <td><?= $row['due_date'] ?></td>
+            <td><?= htmlspecialchars((string)($row['due_date']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
             <td>$<?= number_format($row['amount'], 2) ?></td>
-            <td><?= $row['pagado'] ?></td>
-            <td><?= $row['payment_date'] ?: '-' ?></td>
-            <td><?= $row['confirmation'] ?: '-' ?></td>
-            <td><?= $row['tarjeta_id'] ?: '-' ?></td>
-            <td><?= $row['banco_pago'] ?: '-' ?></td>
-            <td><?= $row['metodo_pago'] ?: '-' ?></td>
-            <td><?= $row['banco'] ?: '-' ?></td>
+            <td><?= htmlspecialchars((string)($row['pagado']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+            <td><?= htmlspecialchars((string)($row['payment_date'] ?: '-'),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+            <td><?= htmlspecialchars((string)($row['confirmation'] ?: '-'),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+            <td><?= htmlspecialchars((string)($row['tarjeta_id'] ?: '-'),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+            <td><?= htmlspecialchars((string)($row['banco_pago'] ?: '-'),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+            <td><?= htmlspecialchars((string)($row['metodo_pago'] ?: '-'),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+            <td><?= htmlspecialchars((string)($row['banco'] ?: '-'),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
 
             <td>
-                <?php if ($row['pagado'] == 'No'): ?>
-                    <form action="ingresar_guardar.php" method="POST">
-                        <input type="hidden" name="mantenimiento_id" value="<?= $row['mantenimiento_id'] ?>">
+                <?php if ($row['pagado'] == 'No' && !empty($row['id'])): ?>
+                    <form action="/gastos/pagar.php" method="POST">
+                        <input type="hidden" name="id" value="<?= (int)$row['id'] ?>">
+                        <input type="hidden" name="mantenimiento_id" value="<?= htmlspecialchars((string)($row['mantenimiento_id']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>">
                         <input type="hidden" name="descripcion" value="<?= htmlspecialchars($row['descripcion']) ?>">
-                        <input type="hidden" name="amount" value="<?= $row['amount'] ?>">
-                        <input type="hidden" name="due_date" value="<?= $row['due_date'] ?>">
+                        <input type="hidden" name="amount" value="<?= htmlspecialchars((string)($row['amount']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>">
+                        <input type="hidden" name="due_date" value="<?= htmlspecialchars((string)($row['due_date']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>">
                         <button class="btn-pagar" type="submit">Pagar</button>
                     </form>
-                <?php else: ?>
+                <?php elseif ($row['pagado'] === 'Si'): ?>
                     ✔
+                <?php else: ?>
+                    Pendiente de generar
                 <?php endif; ?>
             </td>
         </tr>

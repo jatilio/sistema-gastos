@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../../config/seguridad_web.php';
+
 require_once __DIR__ . '/../../config/db.php';
 
 // Obtener tarjetas del usuario
@@ -128,15 +130,15 @@ $tarjetas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <tr>
                         <td><?= htmlspecialchars($t['banco']) ?></td>
                         <td><?= htmlspecialchars($t['nombre_tarjeta']) ?></td>
-                        <td><?= ucfirst($t['tipo']) ?></td>
+                        <td><?= htmlspecialchars(ucfirst((string)($t['tipo'] ?? '')),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
                         <td><?= $t['tipo'] === 'credito' ? '$' . number_format($t['limite'], 2) : '-' ?></td>
-                        <td><?= $t['marca'] ?: '-' ?></td>
-                        <td><?= $t['ultimos_4'] ?: '-' ?></td>
-                        <td><?= ucfirst($t['estado']) ?></td>
+                        <td><?= htmlspecialchars((string)($t['marca'] ?: '-'),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+                        <td><?= htmlspecialchars((string)($t['ultimos_4'] ?: '-'),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+                        <td><?= htmlspecialchars(ucfirst((string)($t['estado'] ?? '')),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
 
                         <td class="acciones">
-                            <a href="index.php?menu=editar_tarjeta&id=<?= $t['id'] ?>" class="btn-editar">Editar</a>
-                            <a href="procesos/eliminar_tarjeta.php?id=<?= $t['id'] ?>" class="btn-eliminar" onclick="return confirm('¿Eliminar esta tarjeta?')">Eliminar</a>
+                            <a href="index.php?menu=editar_tarjeta&id=<?= htmlspecialchars((string)($t['id']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>" class="btn-editar">Editar</a>
+                            <form method="post" action="/procesos/eliminar_tarjeta.php" style="display:inline" onsubmit="return confirm('¿Eliminar esta tarjeta sin movimientos?')"><input type="hidden" name="id" value="<?= (int)$t['id'] ?>"><button type="submit" class="btn-eliminar">Eliminar</button></form>
                         </td>
                     </tr>
                 <?php endforeach; ?>

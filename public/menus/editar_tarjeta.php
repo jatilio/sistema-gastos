@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../../config/seguridad_web.php';
+
 require_once __DIR__ . '/../../config/db.php';
 
 $id = $_GET['id'] ?? null;
@@ -25,7 +27,7 @@ if (!$tarjeta) {
 
     <form method="POST" action="procesos/actualizar_tarjeta.php" class="form-tarjeta-gasto">
 
-        <input type="hidden" name="id" value="<?= $tarjeta['id'] ?>">
+        <input type="hidden" name="id" value="<?= htmlspecialchars((string)($tarjeta['id']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>">
 
         <div class="form-grid">
             <div class="form-group">
@@ -52,22 +54,22 @@ if (!$tarjeta) {
 
             <div class="form-group">
                 <label>Límite de crédito</label>
-                <input type="number" step="0.01" name="limite" value="<?= $tarjeta['limite'] ?>">
+                <input type="number" step="0.01" name="limite" value="<?= htmlspecialchars((string)($tarjeta['limite']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>">
             </div>
 
             <div class="form-group">
                 <label>Deuda actual al registrar</label>
-                <input type="number" step="0.01" name="saldo_actual" id="saldo_actual" value="<?= $tarjeta['saldo_actual'] ?>">
+                <input type="number" step="0.01" name="saldo_actual" id="saldo_actual" value="<?= htmlspecialchars((string)($tarjeta['saldo_actual']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>">
             </div>
 
             <div class="form-group">
                 <label>Día de corte</label>
-                <input type="date" name="dia_corte" value="<?= $tarjeta['dia_corte'] ?>">
+                <input type="date" name="dia_corte" value="<?= htmlspecialchars((string)($tarjeta['dia_corte']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>">
             </div>
 
             <div class="form-group">
                 <label>Día de pago</label>
-                <input type="date" name="dia_pago" value="<?= $tarjeta['dia_pago'] ?>">
+                <input type="date" name="dia_pago" value="<?= htmlspecialchars((string)($tarjeta['dia_pago']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>">
             </div>
 
         </div>
@@ -86,7 +88,7 @@ if (!$tarjeta) {
 
             <div class="form-group">
                 <label>Últimos 4 dígitos</label>
-                <input type="text" name="ultimos_4" maxlength="4" value="<?= $tarjeta['ultimos_4'] ?>">
+                <input type="text" name="ultimos_4" maxlength="4" value="<?= htmlspecialchars((string)($tarjeta['ultimos_4']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>">
             </div>
 
             <div class="form-group">

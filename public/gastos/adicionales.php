@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../../config/seguridad_web.php';
+
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 $_SESSION['adicional_token'] ??= bin2hex(random_bytes(32));
 require_once '../header.php';

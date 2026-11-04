@@ -14,6 +14,7 @@ function ejecutar(PDO $pdo, string $archivo): int {
     http_response_code(200);
     $source = file_get_contents(dirname(__DIR__) . '/' . $archivo);
     $source = preg_replace('/^<\?php\s*/', '', $source);
+    $source=preg_replace("~require_once __DIR__\s*\.\s*['\"][^'\"]*seguridad_web\.php['\"];~",'', $source);
     $source = str_replace("require_once dirname(__DIR__, 2) . '/config/db.php';", '', $source);
     $source = str_replace("require_once dirname(__DIR__, 2) . '/config/pagos_programados.php';", '', $source);
     $source = str_replace("require_once dirname(__DIR__, 2) . '/config/saldos_finanzas.php';", '', $source);

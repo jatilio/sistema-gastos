@@ -1,5 +1,7 @@
 <?php
-session_start();
+require_once __DIR__ . '/../../config/seguridad_web.php';
+
+if(session_status()!==PHP_SESSION_ACTIVE)session_start();
 require_once dirname(__DIR__, 2) . '/config/db.php';
 
 if (!isset($_SESSION['usuario_id'])) {
@@ -68,28 +70,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <form method="POST">
 
     <label>Nombre:</label>
-    <input type="text" name="nombre" value="<?= $item['nombre'] ?>" required>
+    <input type="text" name="nombre" value="<?= htmlspecialchars((string)($item['nombre']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>" required>
 
     <label>Categoría:</label>
-    <input type="text" name="categoria" value="<?= $item['categoria'] ?>" required>
+    <input type="text" name="categoria" value="<?= htmlspecialchars((string)($item['categoria']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>" required>
 
     <label>Cantidad actual:</label>
-    <input type="number" step="0.01" name="cantidad_actual" value="<?= $item['cantidad_actual'] ?>" required>
+    <input type="number" step="0.01" name="cantidad_actual" value="<?= htmlspecialchars((string)($item['cantidad_actual']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>" required>
 
     <label>Unidad:</label>
-    <input type="text" name="unidad" value="<?= $item['unidad'] ?>" required>
+    <input type="text" name="unidad" value="<?= htmlspecialchars((string)($item['unidad']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>" required>
 
     <label>Cantidad mínima:</label>
-    <input type="number" step="0.01" name="cantidad_minima" value="<?= $item['cantidad_minima'] ?>" required>
+    <input type="number" step="0.01" name="cantidad_minima" value="<?= htmlspecialchars((string)($item['cantidad_minima']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>" required>
 
     <label>Ubicación:</label>
-    <input type="text" name="ubicacion" value="<?= $item['ubicacion'] ?>">
+    <input type="text" name="ubicacion" value="<?= htmlspecialchars((string)($item['ubicacion']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>">
 
     <label>Fecha de compra:</label>
-    <input type="date" name="fecha_compra" value="<?= $item['fecha_compra'] ?>">
+    <input type="date" name="fecha_compra" value="<?= htmlspecialchars((string)($item['fecha_compra']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>">
 
     <label>Fecha de vencimiento:</label>
-    <input type="date" name="fecha_vencimiento" value="<?= $item['fecha_vencimiento'] ?>">
+    <input type="date" name="fecha_vencimiento" value="<?= htmlspecialchars((string)($item['fecha_vencimiento']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>">
 
     <button class="btn" type="submit">Guardar Cambios</button>
 </form>

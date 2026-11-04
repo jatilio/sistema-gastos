@@ -1,6 +1,8 @@
 <?php
+require_once __DIR__ . '/../config/seguridad_web.php';
+
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+    if(session_status()!==PHP_SESSION_ACTIVE)session_start();
 }
 
 if (!isset($_SESSION['usuario_id'])) {
@@ -68,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mensaje_exito = "Ingresos guardados para " . $fecha_aporte->format('F Y');
 
     } catch (PDOException $e) {
-        $mensaje_error = "Error al guardar: " . $e->getMessage();
+        error_log('Guardar ingresos: '.$e->getMessage());$mensaje_error = 'No se pudieron guardar los ingresos. Revisa los datos.';
     }
 }
 ?>

@@ -1,5 +1,7 @@
 <?php
-session_start();
+require_once __DIR__ . '/../../config/seguridad_web.php';
+
+if(session_status()!==PHP_SESSION_ACTIVE)session_start();
 require_once dirname(__DIR__, 2) . '/config/db.php';
 
 // Validar sesión
@@ -136,14 +138,14 @@ $vencer_data = $vencer_mes->fetchAll(PDO::FETCH_ASSOC);
             <tr>
                 <td><?= htmlspecialchars($item['categoria']) ?></td>
                 <td><?= htmlspecialchars($item['nombre']) ?></td>
-                <td><?= $item['cantidad_actual'] ?></td>
+                <td><?= htmlspecialchars((string)($item['cantidad_actual']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
                 <td><?= htmlspecialchars($item['unidad']) ?></td>
-                <td><?= $item['cantidad_minima'] ?></td>
+                <td><?= htmlspecialchars((string)($item['cantidad_minima']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
                 <td><?= htmlspecialchars($item['ubicacion']) ?></td>
-                <td><?= $item['fecha_vencimiento'] ?></td>
+                <td><?= htmlspecialchars((string)($item['fecha_vencimiento']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
 
                 <td>
-                    <span class="estado <?= $item['estado'] ?>">
+                    <span class="estado <?= htmlspecialchars((string)($item['estado']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>">
                         <?php
                             if ($item['estado'] == 'bajo_stock') echo 'Bajo stock';
                             elseif ($item['estado'] == 'vencido') echo 'Vencido';
@@ -154,9 +156,9 @@ $vencer_data = $vencer_mes->fetchAll(PDO::FETCH_ASSOC);
                 </td>
 
                 <td>
-                    <a class="action editar" href="inventario_editar.php?id=<?= $item['id'] ?>">Editar</a>
-                    <a class="action consumo" href="inventario_consumo.php?id=<?= $item['id'] ?>">Consumo</a>
-                    <a class="action movimientos" href="inventario_movimientos.php?id=<?= $item['id'] ?>">Movimientos</a>
+                    <a class="action editar" href="inventario_editar.php?id=<?= htmlspecialchars((string)($item['id']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>">Editar</a>
+                    <a class="action consumo" href="inventario_consumo.php?id=<?= htmlspecialchars((string)($item['id']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>">Consumo</a>
+                    <a class="action movimientos" href="inventario_movimientos.php?id=<?= htmlspecialchars((string)($item['id']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>">Movimientos</a>
 
                 </td>
             </tr>
@@ -167,12 +169,12 @@ $vencer_data = $vencer_mes->fetchAll(PDO::FETCH_ASSOC);
 <!-- SCRIPTS PARA GRÁFICOS -->
 <script>
 /* === FIX PARA EVITAR DUPLICADOS === */
-const stockLabels = <?= json_encode(array_map(
+const stockLabels = <?= finanzasJson(array_map(
     fn($i) => $i['categoria'] . ' - ' . $i['nombre'],
     $stock_data
 )) ?>;
 
-const stockValues = <?= json_encode(array_column($stock_data, 'cantidad_actual')) ?>;
+const stockValues = <?= finanzasJson(array_column($stock_data, 'cantidad_actual')) ?>;
 
 new Chart(document.getElementById('stockChart'), {
     type: 'bar',
@@ -186,8 +188,8 @@ new Chart(document.getElementById('stockChart'), {
     }
 });
 
-const vencerLabels = <?= json_encode(array_column($vencer_data, 'mes')) ?>;
-const vencerValues = <?= json_encode(array_column($vencer_data, 'total')) ?>;
+const vencerLabels = <?= finanzasJson(array_column($vencer_data, 'mes')) ?>;
+const vencerValues = <?= finanzasJson(array_column($vencer_data, 'total')) ?>;
 
 new Chart(document.getElementById('vencerMesChart'), {
     type: 'bar',

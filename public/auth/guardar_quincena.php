@@ -1,11 +1,13 @@
 <?php
-session_start();
+require_once __DIR__ . '/../../config/seguridad_web.php';
+
+if(session_status()!==PHP_SESSION_ACTIVE)session_start();
 if (!isset($_SESSION['usuario_id'])) {
     header("Location: auth/login.php");
     exit;
 }
 
-require_once "config/db.php";
+require_once __DIR__.'/../../config/db.php';
 
 $usuario_id = $_SESSION['usuario_id'];
 

@@ -1,5 +1,7 @@
 <?php
-session_start();
+require_once __DIR__ . '/../../config/seguridad_web.php';
+
+if(session_status()!==PHP_SESSION_ACTIVE)session_start();
 require_once dirname(__DIR__, 2) . '/config/db.php';
 
 require_once dirname(__DIR__, 2) . '/vendor/autoload.php';
@@ -43,6 +45,10 @@ style="border-collapse:collapse; font-family:Segoe UI; font-size:14px;">
     <tbody>';
 
 foreach ($productos as $p) {
+    $p['nombre'] = htmlspecialchars((string)($p['nombre'] ?? ''), ENT_QUOTES|ENT_SUBSTITUTE, 'UTF-8');
+    $p['categoria'] = htmlspecialchars((string)($p['categoria'] ?? ''), ENT_QUOTES|ENT_SUBSTITUTE, 'UTF-8');
+    $p['unidad'] = htmlspecialchars((string)($p['unidad'] ?? ''), ENT_QUOTES|ENT_SUBSTITUTE, 'UTF-8');
+
     $html .= "
         <tr>
             <td>{$p['nombre']}</td>
@@ -61,7 +67,7 @@ $html .= '
 
 // Configurar Dompdf
 $options = new Options();
-$options->set('isRemoteEnabled', true);
+$options->set('isRemoteEnabled', false);
 
 $dompdf = new Dompdf($options);
 $dompdf->loadHtml($html);

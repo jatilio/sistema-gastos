@@ -1,5 +1,7 @@
 <?php
-session_start();
+require_once __DIR__ . '/../../config/seguridad_web.php';
+
+if(session_status()!==PHP_SESSION_ACTIVE)session_start();
 require_once dirname(__DIR__, 2) . '/config/db.php';
 
 // Validar sesión
@@ -87,9 +89,9 @@ $mov = $pdo->prepare("
                     <td>
                         <?php if ($ultimo): ?>
                             <?php if ($ultimo['tipo'] === 'ENTRADA'): ?>
-                                <span class="entrada">ENTRADA (<?= $ultimo['cantidad'] ?>)</span>
+                                <span class="entrada">ENTRADA (<?= htmlspecialchars((string)($ultimo['cantidad']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>)</span>
                             <?php else: ?>
-                                <span class="salida">SALIDA (<?= $ultimo['cantidad'] ?>)</span>
+                                <span class="salida">SALIDA (<?= htmlspecialchars((string)($ultimo['cantidad']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>)</span>
                             <?php endif; ?>
                         <?php else: ?>
                             <em>Sin movimientos</em>
@@ -101,7 +103,7 @@ $mov = $pdo->prepare("
                     </td>
 
                     <td>
-                        <a class="action movimientos" href="inventario_movimientos.php?id=<?= $p['id'] ?>">Ver Historial</a>
+                        <a class="action movimientos" href="inventario_movimientos.php?id=<?= htmlspecialchars((string)($p['id']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?>">Ver Historial</a>
                     </td>
                 </tr>
 

@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../config/seguridad_web.php';
+
 $usuario_id = $_SESSION['usuario_id'];
 
 $month = isset($_GET['month']) ? intval($_GET['month']) : date("m");
@@ -198,10 +200,10 @@ $total_adicionales = array_sum(array_column($adicionales, 'total'));
                     <td><?= htmlspecialchars($gasto['descripcion']) ?></td>
                     <td><?= date("d/m/Y", strtotime($gasto['due_date'])) ?></td>
                     <td>$<?= number_format($gasto['amount'], 2) ?></td>
-                    <td><?= $gasto['pagado'] ?></td>
+                    <td><?= htmlspecialchars((string)($gasto['pagado']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
                     <td><?= $gasto['payment_date'] ? date("d/m/Y", strtotime($gasto['payment_date'])) : "-" ?></td>
-                    <td><?= $gasto['confirmation'] ?: "-" ?></td>
-                    <td><?= $gasto['banco_pago'] ?: "-" ?></td>
+                    <td><?= htmlspecialchars((string)($gasto['confirmation'] ?: '-'),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
+                    <td><?= htmlspecialchars((string)($gasto['banco_pago'] ?: '-'),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -244,7 +246,7 @@ $total_adicionales = array_sum(array_column($adicionales, 'total'));
                     <td><?= htmlspecialchars($g['descripcion']) ?></td>
                     <td><?= date("d/m/Y", strtotime($g['fecha'])) ?></td>
                     <td><?= htmlspecialchars($g['categoria']) ?></td>
-                    <td><?= $g['cantidad'] ?></td>
+                    <td><?= htmlspecialchars((string)($g['cantidad']??''),ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8') ?></td>
                     <td>$<?= number_format($g['total'], 2) ?></td>
                     <td><?= htmlspecialchars($g['tarjeta']) ?></td>
                 </tr>
